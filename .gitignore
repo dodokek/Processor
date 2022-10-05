@@ -1,0 +1,11 @@
+#Excluding chunky files
+/html
+/.git-auto
+
+
+#excluding trash
+*.log
+*.exe
+*.save
+*.O
+
