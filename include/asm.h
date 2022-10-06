@@ -5,7 +5,10 @@
 #include "stringUtils.h"
 #include "stack.h"
 
+
 const int PUSH_LEN = 4;
+const int VERSION = 1;
+
 
 enum Commands
 {
@@ -20,9 +23,10 @@ enum Commands
     IN
 };
 
+
 void RawToBin (Text RawCmd, FILE* CmdFile);
 
-void LineToBin (char* line, FILE* CmdFile);
+int LineToCommands (char* line, int* commands, int cmds_amount);
 
 int GetCmdNum (char* cmd);
 
