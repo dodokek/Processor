@@ -6,7 +6,7 @@ int main()
     Text RawCmd = {};
 
     FILE* RawCmdFile = get_file ("../data/asm.txt", "r");
-    FILE* CmdFile    = get_file ("../data/cmds.bin", "ab    +");
+    FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     ProccessTextStruct (&RawCmd, RawCmdFile);
 
@@ -30,9 +30,11 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
 
     commands[0] = VERSION;
     commands[1] = 0xDEAD;
-    commands[2] = bin_size;
+    commands[2] = bin_size - 3;
 
-    fwrite (commands, sizeof(int), bin_size * sizeof (int), CmdFile);
+    fwrite (commands, sizeof (int), bin_size, CmdFile);
+
+    FREE(commands);
 }
 
 

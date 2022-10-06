@@ -7,7 +7,7 @@
 
 
 const int PUSH_LEN = 4;
-const int VERSION = 1;
+const int VERSION = 2;
 
 
 enum Commands

@@ -2,8 +2,8 @@
 #define STACK_H
 
 //#define CANARY 1
-#define HASH 1
-#define DEBUG 1
+//#define HASH 1
+//#define DEBUG 1
 
 #include <stdio.h>
 #include <string.h>
