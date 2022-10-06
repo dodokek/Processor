@@ -13,7 +13,7 @@ const int VERSION = 2;
 enum Commands
 {
     PUSH = 1,
-    POP,
+    MLT,
     ADD,
     SUB,
     DIV,
@@ -29,5 +29,7 @@ void RawToBin (Text RawCmd, FILE* CmdFile);
 int LineToCommands (char* line, int* commands, int cmds_amount);
 
 int GetCmdNum (char* cmd);
+
+void StartAsm();
 
 #endif

@@ -1,7 +1,7 @@
 
 #include "../include/asm.h"
 
-int main()
+void StartAsm()
 {
     Text RawCmd = {};
 
@@ -13,6 +13,9 @@ int main()
     RawToBin (RawCmd, CmdFile);
 
     TextDestr (&RawCmd);
+
+    fclose (RawCmdFile);
+    fclose (CmdFile);
 
 }
 
@@ -59,7 +62,7 @@ int LineToCommands (char* line, int* commands, int cmds_amount)
 int GetCmdNum (char* cmd)
 {
     if (strcmp (cmd, "PUSH") == 0) return PUSH;
-    else if (strcmp (cmd, "POP") == 0) return POP;
+    else if (strcmp (cmd, "MLT") == 0) return MLT;
     else if (strcmp (cmd, "ADD") == 0) return ADD;
     else if (strcmp (cmd, "SUB") == 0) return SUB;
     else if (strcmp (cmd, "DIV") == 0) return DIV;

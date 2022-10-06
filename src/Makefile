@@ -10,12 +10,14 @@ STACK  = stack
 STR = stringUtils
 FILE = fileUtils
 MAIN = main
+PROC = proc
+MMAKE = mymake
 
 #Body
 
 all : $(MAIN)
 
-$(MAIN)     : $(ASM).o $(STACK).o $(STR).o $(FILE).o  
+$(MAIN)     : $(MMAKE).o $(PROC).o  $(ASM).o $(STACK).o $(STR).o $(FILE).o  
 	$(CC) $(CFLAGS) $^ -o $@   
 
 $(ASM).o   : $(ASM).cpp
@@ -29,6 +31,12 @@ $(FILE).o  : $(FILE).cpp
 
 $(STR).o  : $(STR).cpp
 	$(CC) $(CFLAGS) $< -c  
+
+$(PROC).o : $(PROC).cpp
+	$(CC) $(CFLAGS) $< -c
+
+$(MMAKE).o : $(MMAKE).cpp
+	$(CC) $(CFLAGS) $< -c
 
 clean:
 	rm -rf *.o *.save $(MAIN)

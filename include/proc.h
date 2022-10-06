@@ -22,10 +22,10 @@ const int PROC_VERSION = 2;
 
 void StartProc ();
 
-void ParseBin (BinData* self, int* arr);
+void ParseBinFile (BinData* self, int* arr);
 
 void Execute (int* arr, int len);
 
-void ProcessCommand (Stack* self, int* arr);
+void ProcessCommand (Stack* self, int* arr, int* iterator);
 
 #endif
