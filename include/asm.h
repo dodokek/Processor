@@ -26,10 +26,12 @@ enum Commands
 
 void RawToBin (Text RawCmd, FILE* CmdFile);
 
-int LineToCommands (char* line, int* commands, int cmds_amount);
+int LineToCommands (char* line, char* commands, int cmds_amount);
 
 int GetCmdNum (char* cmd);
 
 void StartAsm();
+
+void IntToChar (char* arr, int* num);
 
 #endif

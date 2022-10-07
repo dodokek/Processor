@@ -5,20 +5,21 @@ void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
 
-    int* tmp = (int*) calloc (sizeof (int), MAX_BIN_SIZE);
+    char* tmp = (char*) calloc (sizeof (int), MAX_BIN_SIZE);
 
     printf("Symbols read%d\n", fread (tmp, sizeof (int), MAX_CMDS_AMOUNT, CmdFile));
 
-    for (int i = 0; i < MAX_BIN_SIZE; i++)
+    /*for (int i = 0; i < MAX_BIN_SIZE; i++)
     {
         printf ("%d ", tmp[i]);
     }
+    */
 
     BinData MainData = {};
 
     ParseBinFile (&MainData, tmp); 
 
-    if (MainData.version != PROC_VERSION || MainData.password != 0xDEAD) 
+    if (MainData.version != PROC_VERSION) 
     {
         printf ("Wrong bin file!");
     }
@@ -30,11 +31,11 @@ void StartProc ()
 }
 
 
-void ParseBinFile (BinData* self, int* arr)
+void ParseBinFile (BinData* self, char* arr)
 {
     self->version = arr[0];
-    self->password = arr[1];
-    self->cmds_amount = arr[2];
+    self->cmds_amount = arr[1];
+    if (arr[2] != 'C' || arr[3] != 'U' || arr[4] != 'M') printf ("Wrong signature!\n");
 
     printf ("Cur Version: %d, Cur pass %d, Curr Cmd Amount: %d \n\n", arr[0], arr[1], arr[2]);
 
@@ -43,12 +44,12 @@ void ParseBinFile (BinData* self, int* arr)
         printf ("%d\n", arr[i]);
     }
 
-    self->cmds = arr + 3;
+    self->cmds = arr + 5;
     
 }
 
 
-void Execute (int* arr, int len)
+void Execute (char* arr, int len)
 {
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
@@ -62,14 +63,14 @@ void Execute (int* arr, int len)
 }
 
 
-void ProcessCommand (Stack* self, int* arr, int* iterator)
+void ProcessCommand (Stack* self, char* arr, int* iterator)
 {
     printf ("Currently working on %d\n", *arr);
     switch (*arr)
     {
     case PUSH:
-        StackPush (self, *(arr+1));
-        (*iterator)++;
+        StackPush (self, *(int*)(arr+1));
+        (*iterator) += 4;
         break;
 
     case ADD:
@@ -85,7 +86,7 @@ void ProcessCommand (Stack* self, int* arr, int* iterator)
         break;
 
     case OUT:
-        printf ("\n------------------Stack result: %d-----------------\n\n", StackPop (self));
+        printf ("Stack out: %d\n", StackPop (self));
         break;
 
     case HLT:

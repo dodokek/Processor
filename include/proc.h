@@ -9,9 +9,8 @@
 struct BinData
 {
     int version;
-    int password;
     int cmds_amount;
-    int* cmds;
+    char* cmds;
 };
 
 
@@ -22,10 +21,10 @@ const int PROC_VERSION = 2;
 
 void StartProc ();
 
-void ParseBinFile (BinData* self, int* arr);
+void ParseBinFile (BinData* self, char* arr);
 
-void Execute (int* arr, int len);
+void Execute (char* arr, int len);
 
-void ProcessCommand (Stack* self, int* arr, int* iterator);
+void ProcessCommand (Stack* self, char* arr, int* iterator);
 
 #endif

@@ -135,7 +135,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 {
     assert (self != nullptr && filename != nullptr && funcname != nullptr);
 
-    Verificate (self);
+    /*Verificate (self);
     PutDividers();
 
     printf ("At file: %s\n", filename);
@@ -143,7 +143,6 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->stack_info.name, funcname, line);
     printf ("%c Created at %s, file %s\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
 
-    printf ("%cSize: %d\n", 204, self->size);
     printf ("%cHash: %I64d \n", 204, self->hash);
     printf ("%cSubhash: %I64d \n", 204, self->subhash);
     
@@ -152,7 +151,9 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
         printf ("%cLeft canary: %x\n", 204, self->left_cock);
         printf ("%cRight canary: %x\n", 204, self->right_cock);
     )
+    */
 
+    printf ("%cSize: %d\n", 204, self->size);
     printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
 
     if (self->stack_info.data_corrupted) 
@@ -162,8 +163,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     {
         if (i < self->size) 
         {
-            if (i == 0 || i == self->size - 1) printf ("\t*[%d]: %x\n", i, self->data[i]);
-            else                               printf ("\t*[%d]: %d\n", i, self->data[i]);         
+            printf ("\t*[%d]: %d\n", i, self->data[i]);         
         }
         else
         {

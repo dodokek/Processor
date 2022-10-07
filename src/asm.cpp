@@ -22,9 +22,9 @@ void StartAsm()
 
 void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    int* commands = (int*) calloc (sizeof (int), RawCmd.lines_amount * 2);
+    char* commands = (char*) calloc (sizeof (char) * 4, RawCmd.lines_amount * 2);
 
-    int bin_size = 3;
+    int bin_size = 5;
 
     for (int line_ctr = 0; line_ctr < RawCmd.lines_amount; line_ctr++)
     {
@@ -32,8 +32,10 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
     }
 
     commands[0] = VERSION;
-    commands[1] = 0xDEAD;
-    commands[2] = bin_size - 3;
+    commands[1] = bin_size - 5;
+    commands[2] = 'C';
+    commands[3] = 'U';
+    commands[4] = 'M';
 
     fwrite (commands, sizeof (int), bin_size, CmdFile);
 
@@ -41,14 +43,16 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
 }
 
 
-int LineToCommands (char* line, int* commands, int cmds_amount)
+int LineToCommands (char* line, char* commands, int cmds_amount)
 {
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
-        commands[cmds_amount]     = PUSH;
-        commands[cmds_amount + 1] = atoi (line + PUSH_LEN);
+        commands[cmds_amount] = PUSH;
 
-        return 2;
+        int tmp_cmd = atoi (line + PUSH_LEN);
+        IntToChar (commands + cmds_amount + 1, &tmp_cmd);
+
+        return 5;
     }
     else
     {
@@ -61,7 +65,7 @@ int LineToCommands (char* line, int* commands, int cmds_amount)
 
 int GetCmdNum (char* cmd)
 {
-    if (strcmp (cmd, "PUSH") == 0) return PUSH;
+    if      (strcmp (cmd, "PUSH") == 0) return PUSH;
     else if (strcmp (cmd, "MLT") == 0) return MLT;
     else if (strcmp (cmd, "ADD") == 0) return ADD;
     else if (strcmp (cmd, "SUB") == 0) return SUB;
@@ -69,8 +73,20 @@ int GetCmdNum (char* cmd)
     else if (strcmp (cmd, "OUT") == 0) return OUT;
     else if (strcmp (cmd, "HLT") == 0) return HLT;
     else if (strcmp (cmd, "DMP") == 0) return DMP;
-    else if (strcmp (cmd, "IN") == 0) return IN;
+    else if (strcmp (cmd, "IN") == 0)  return IN;
 
     return 0;
 }
 
+
+void IntToChar (char* arr, int* num)
+{
+    char* ptr = (char*) num;
+    
+    for (size_t i = 0; i < sizeof (int); i++)
+    {
+        arr[i] = *ptr;
+        printf ("Cur value: %d", arr[i]);
+        ptr++; 
+    }
+}
