@@ -4,73 +4,58 @@
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
+    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE);
+    fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
 
-    char* tmp = (char*) calloc (sizeof (int), MAX_BIN_SIZE);
+    Processor Stream = {};
+    ProcCtor (&Stream);
 
-    printf("Symbols read%d\n", fread (tmp, sizeof (int), MAX_CMDS_AMOUNT, CmdFile));
+    ParseBinFile (&Stream, buffer); 
+    if (Stream.version != PROC_VERSION) printf ("Wrong bin file!");
+    Execute (&Stream);
 
-    /*for (int i = 0; i < MAX_BIN_SIZE; i++)
-    {
-        printf ("%d ", tmp[i]);
-    }
-    */
-
-    BinData MainData = {};
-
-    ParseBinFile (&MainData, tmp); 
-
-    if (MainData.version != PROC_VERSION) 
-    {
-        printf ("Wrong bin file!");
-    }
-
-    Execute (MainData.cmds, MainData.cmds_amount);
-
-    FREE(tmp);
+    FREE(buffer);
     fclose (CmdFile);
+    ProcDtor (&Stream);
 }
 
 
-void ParseBinFile (BinData* self, char* arr)
+void ParseBinFile (Processor* self, char* code)
 {
-    self->version = arr[0];
-    self->cmds_amount = arr[1];
-    if (arr[2] != 'C' || arr[3] != 'U' || arr[4] != 'M') printf ("Wrong signature!\n");
+    self->version = code[VERSION_INDX];
+    self->cmds_amount = code[CMD_AMT_INDX];
 
-    printf ("Cur Version: %d, Cur pass %d, Curr Cmd Amount: %d \n\n", arr[0], arr[1], arr[2]);
+    if (code[SG_INDX1] != 'C' || code[SG_INDX2] != 'U' || code[SG_INDX3] != 'M') printf ("Wrong signature!\n");
 
-    for (int i = 0; i < arr[2]; i++)
-    {
-        printf ("%d\n", arr[i]);
-    }
+    printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", code[VERSION_INDX], code[CMD_AMT_INDX]);
 
-    self->cmds = arr + 5;
+    self->cmds = code + WORK_DATA_LEN; //Служебная информация хз как перевести
     
 }
 
 
-void Execute (char* arr, int len)
+void Execute (Processor* Stream)
 {
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
 
-    for (int cmd_counter = 0; cmd_counter < len; cmd_counter++)
+    for (int cmd_counter = 0; cmd_counter < Stream->cmds_amount; cmd_counter++)
     {
-        ProcessCommand (&MainStack, arr + cmd_counter, &cmd_counter);
+        ProcessCommand (&MainStack, Stream->cmds + cmd_counter, &cmd_counter, Stream);
     }
 
     StackDtor (&MainStack);
 }
 
 
-void ProcessCommand (Stack* self, char* arr, int* iterator)
+void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 {
-    printf ("Currently working on %d\n", *arr);
-    switch (*arr)
+    printf ("Currently working on %d\n", *code & CMD_BITMASK);
+    switch (*code & CMD_BITMASK)
     {
     case PUSH:
-        StackPush (self, *(int*)(arr+1));
-        (*iterator) += 4;
+        ProcessPush (self, code, *ip, Stream);
+        (*ip) += INT_OFFSET;
         break;
 
     case ADD:
@@ -94,7 +79,49 @@ void ProcessCommand (Stack* self, char* arr, int* iterator)
         break;
 
     default:
-        printf ("UK %d\n", *arr);
+        printf ("UK %d\n", *code);
         break;
     }
 }
+
+
+void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
+{
+    int cmd = *code;
+    printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
+    int arg = 0;
+
+    if (cmd & ARG_IMMED) arg += *(int*)(code + 1);
+    if (cmd & ARG_REG)   arg += Stream->Regs[*(int*)(code + 1)];
+
+    printf ("We got arg: %d\n", arg);
+
+    StackPush (self, arg);    
+}
+
+
+void ProcCtor (Processor* self)
+{
+    self->version = 0;
+    self->cmds_amount = 0;
+    self->cmds = nullptr;
+
+    self->Regs[0] = 100;  //For testing
+    self->Regs[1] = 200;
+    self->Regs[2] = 300;
+    self->Regs[3] = 400;
+}
+
+
+void ProcDtor (Processor* self)
+{
+    self->version = 0;
+    self->cmds_amount = 0;
+    self->cmds = nullptr;   
+
+    for (int i = 0; i < REG_AMOUNT; i++)
+    {
+        self->Regs[i] = -1;
+    } 
+}
+

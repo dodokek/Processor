@@ -6,25 +6,38 @@
 #include "fileUtils.h"
 #include "asm.h"
 
-struct BinData
+//-----------------------------------------------
+const int MAX_BIN_SIZE = 100;
+const int MAX_CMDS_AMOUNT = 50;
+const int PROC_VERSION = 2;
+const int REG_AMOUNT = 4;
+//-----------------------------------------------
+
+
+struct Processor
 {
     int version;
     int cmds_amount;
-    char* cmds;
+    const char* cmds;
+
+    int Regs[4];
 };
 
 
-const int MAX_BIN_SIZE = 100;
-const int MAX_CMDS_AMOUNT = 50;
 
-const int PROC_VERSION = 2;
 
 void StartProc ();
 
-void ParseBinFile (BinData* self, char* arr);
+void ParseBinFile (Processor* self, char* code);
 
-void Execute (char* arr, int len);
+void Execute (Processor* Stream);
 
-void ProcessCommand (Stack* self, char* arr, int* iterator);
+void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream);
+
+void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream);
+
+void ProcCtor (Processor* self);
+
+void ProcDtor (Processor* self);
 
 #endif

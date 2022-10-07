@@ -22,20 +22,20 @@ void StartAsm()
 
 void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    char* commands = (char*) calloc (sizeof (char) * 4, RawCmd.lines_amount * 2);
+    char* commands = (char*) calloc (sizeof (int), RawCmd.lines_amount * 2);
 
-    int bin_size = 5;
+    int bin_size = WORK_DATA_LEN;
 
     for (int line_ctr = 0; line_ctr < RawCmd.lines_amount; line_ctr++)
     {
         bin_size += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, commands, bin_size);
     }
 
-    commands[0] = VERSION;
-    commands[1] = bin_size - 5;
-    commands[2] = 'C';
-    commands[3] = 'U';
-    commands[4] = 'M';
+    commands[VERSION_INDX] = VERSION;
+    commands[CMD_AMT_INDX] = bin_size - WORK_DATA_LEN;
+    commands[SG_INDX1] = 'C';
+    commands[SG_INDX2] = 'U';
+    commands[SG_INDX3] = 'M';
 
     fwrite (commands, sizeof (int), bin_size, CmdFile);
 
@@ -47,18 +47,13 @@ int LineToCommands (char* line, char* commands, int cmds_amount)
 {
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
-        commands[cmds_amount] = PUSH;
-
-        int tmp_cmd = atoi (line + PUSH_LEN);
-        IntToChar (commands + cmds_amount + 1, &tmp_cmd);
-
-        return 5;
+        return ParsePush (commands, cmds_amount, line + PUSH_LEN, PUSH);
     }
     else
     {
         commands[cmds_amount] = GetCmdNum (line);
 
-        return 1;
+        return DEFAULT_CMD_OFFSET;
     }
 }
 
@@ -73,9 +68,31 @@ int GetCmdNum (char* cmd)
     else if (strcmp (cmd, "OUT") == 0) return OUT;
     else if (strcmp (cmd, "HLT") == 0) return HLT;
     else if (strcmp (cmd, "DMP") == 0) return DMP;
-    else if (strcmp (cmd, "IN") == 0)  return IN;
+    else if (strcmp (cmd, "IN")  == 0)  return IN;
 
     return 0;
+}
+
+
+int ParsePush (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
+{
+    commands[cmd_iter] = PUSH;
+    int tmp_dig   = 0;
+
+    if (sscanf (cur_cmd_line, "%d", &tmp_dig))
+    {
+        commands[cmd_iter] |= ARG_IMMED;
+        IntToChar (commands + cmd_iter + 1, &tmp_dig);
+    }
+    else
+    {
+        int reg_number = GetRegNum (cur_cmd_line + 1);
+
+        IntToChar(commands + cmd_iter + 1, &reg_number);
+        commands[cmd_iter] |= ARG_REG;
+    }
+
+    return DEFAULT_PUSH_OFFSET;
 }
 
 
@@ -89,4 +106,18 @@ void IntToChar (char* arr, int* num)
         printf ("Cur value: %d", arr[i]);
         ptr++; 
     }
+}
+
+
+int GetRegNum (char* reg)
+{
+    if (reg[0] == 'r' && reg[2] == 'x')
+    {
+        printf ("NUM %d\n", reg[1] - 'a');
+        return reg[1] - 'a';
+    }
+
+    printf("recieved chars %c and %c, WA\n", reg[0], reg[1]);
+    return 0;
+    
 }
