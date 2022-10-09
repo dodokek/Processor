@@ -76,10 +76,10 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 
     case POP:
         ProcessPop (self, code, *ip, Stream);
-        printf ("Register value: %d\n", Stream->Regs[0]);
+        // printf ("Register value: %d\n", Stream->Regs[0]);
         (*ip) += INT_OFFSET;
         break;
-        
+
     case OUT:
         // StackDump (self);
         printf ("Stack out: %d\n", StackPop (self));
@@ -105,7 +105,7 @@ void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
 {
     int* arg = GetArg (*code, code, Stream);
 
-    printf ("We got arg: %d\n", *arg);
+    // printf ("We got arg: %d\n", *arg);
 
     StackPush (self, *arg);    
 }
@@ -115,7 +115,7 @@ void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
 {
     int* arg = GetArg (*code, code, Stream);
 
-    printf ("We got arg: %d\n", *arg);
+    // printf ("We got arg: %d\n", *arg);
 
     *arg = StackPop (self);  
 }
@@ -123,14 +123,15 @@ void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
 
 int* GetArg (int cmd, const char* code, Processor* Stream)
 {
-    printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
+    // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
 
     int* arg = nullptr;
     
     if (cmd & ARG_IMMED) arg = (int*)(code + 1);
-    if (cmd & ARG_REG)   arg = Stream->Regs + *(int*)(code + 1);   
+    if (cmd & ARG_REG)   arg = Stream->Regs + *(int*)(code + 1); 
+    if (cmd & ARG_MEM)   arg = Stream->Ram + *arg;
 
-    printf ("arg or ind %d\n", *(int*)(code + 1));
+    // printf ("arg or ind %d\n", *(int*)(code + 1));
 
     return arg;
 }
@@ -142,10 +143,10 @@ void ProcCtor (Processor* self)
     self->cmds_amount = 0;
     self->cmds = nullptr;
 
-    self->Regs[0] = 100;  //For testing
-    self->Regs[1] = 200;
-    self->Regs[2] = 300;
-    self->Regs[3] = 400;
+    memset (self->Regs, 0, sizeof(int) * REG_AMOUNT);
+
+    self->Ram = (int*) calloc (RAM_SIZE, sizeof (int));
+
 }
 
 
@@ -155,9 +156,8 @@ void ProcDtor (Processor* self)
     self->cmds_amount = 0;
     self->cmds = nullptr;   
 
-    for (int i = 0; i < REG_AMOUNT; i++)
-    {
-        self->Regs[i] = -1;
-    } 
+    memset (self->Regs, -1, sizeof(int) * REG_AMOUNT); 
+
+    FREE(self->Ram);
 }
 

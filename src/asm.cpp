@@ -49,11 +49,11 @@ int LineToCommands (char* line, char* commands, int cmds_amount)
 {
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
-        return ParseCmd (commands, cmds_amount, line + PUSH_LEN, PUSH);
+        return ParseCmd (commands, cmds_amount, line + PUSH_LEN + 1, PUSH);
     }
     else if (strncmp ("POP", line, POP_LEN) == 0)
     {
-        return ParseCmd (commands, cmds_amount, line + POP_LEN, POP);
+        return ParseCmd (commands, cmds_amount, line + POP_LEN + 1, POP);
     }
     else if (strncmp ("JMP", line, JMP_LEN) == 0)
     {
@@ -88,6 +88,15 @@ int GetCmdNum (char* cmd)
 int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
 {
     commands[cmd_iter] = operation;
+
+    if (HandleRam (cur_cmd_line))
+    {
+        commands[cmd_iter] |= ARG_MEM;
+        cur_cmd_line++;
+        printf ("TRIMMED STR IS %s \n\n", cur_cmd_line);
+
+    }
+
     int tmp_dig   = 0;
 
     if (sscanf (cur_cmd_line, "%d", &tmp_dig))
@@ -97,13 +106,31 @@ int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
     }
     else
     {
-        int reg_number = GetRegNum (cur_cmd_line + 1);
+        int reg_number = GetRegNum (cur_cmd_line);
 
         IntToChar(commands + cmd_iter + 1, &reg_number);
         commands[cmd_iter] |= ARG_REG;
     }
 
     return DEFAULT_TWO_CMD_OFFSET;
+}
+
+
+bool HandleRam (char* cmd_line)
+{
+    if (*cmd_line == '[')
+    {
+        *cmd_line = ' ';
+
+        char tmp_str[] = "";
+        int  cmd_len = 0;
+        
+        sscanf (cmd_line, "%s%n", tmp_str, &cmd_len);
+        *(cmd_line + cmd_len - 1) = ' ';
+
+        return true;
+    }
+    return false;
 }
 
 

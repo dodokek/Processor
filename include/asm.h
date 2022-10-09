@@ -6,9 +6,9 @@
 #include "stack.h"
 
 
-const int PUSH_LEN = 4;
-const int POP_LEN = 3;
-const int JMP_LEN = 3;
+const int PUSH_LEN = 4 ;
+const int POP_LEN = 3 ;
+const int JMP_LEN = 3 ;
 const int VERSION = 2;
 
 const int INT_OFFSET = 4;
@@ -79,5 +79,7 @@ int GetRegNum (char* reg);
 void ProcessPush (Stack* self, int arr);
 
 int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
+
+bool HandleRam (char* cmd_line);
 
 #endif

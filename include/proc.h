@@ -11,6 +11,7 @@ const int MAX_BIN_SIZE = 100;
 const int MAX_CMDS_AMOUNT = 50;
 const int PROC_VERSION = 2;
 const int REG_AMOUNT = 4;
+const int RAM_SIZE = 100;
 //-----------------------------------------------
 
 
@@ -21,6 +22,8 @@ struct Processor
     const char* cmds;
 
     int Regs[4];
+
+    int* Ram;
 };
 
 
