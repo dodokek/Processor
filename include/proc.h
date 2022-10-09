@@ -34,10 +34,14 @@ void Execute (Processor* Stream);
 
 void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream);
 
+void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream);
+
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream);
 
 void ProcCtor (Processor* self);
 
 void ProcDtor (Processor* self);
+
+int* GetArg (int cmd, const char* code, Processor* Stream);
 
 #endif

@@ -61,6 +61,7 @@ elem_t StackPop (Stack* self)
 
 void StackPush (Stack* self, elem_t value)
 {
+    printf ("Pushing elem: %d\n", value);
 
     ON_DEBUG(
 

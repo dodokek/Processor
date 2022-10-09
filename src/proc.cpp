@@ -56,10 +56,13 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
     case PUSH:
         ProcessPush (self, code, *ip, Stream);
         (*ip) += INT_OFFSET;
+        // StackDump (self);
+
         break;
 
     case ADD:
         StackPush (self, StackPop(self) + StackPop(self));
+        // StackDump (self);  
         break;
 
     case SUB:
@@ -68,14 +71,27 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 
     case DIV:
         StackPush (self, StackPop(self) / StackPop(self));
+        // StackDump (self);
         break;
 
+    case POP:
+        ProcessPop (self, code, *ip, Stream);
+        printf ("Register value: %d\n", Stream->Regs[0]);
+        (*ip) += INT_OFFSET;
+        break;
+        
     case OUT:
+        // StackDump (self);
         printf ("Stack out: %d\n", StackPop (self));
         break;
 
     case HLT:
         printf ("End of commands\n");
+        break;
+
+    case JMP:
+        printf ("Jumping\n");
+        *ip = *(int*)(code + 1);
         break;
 
     default:
@@ -87,16 +103,36 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 
 void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
 {
-    int cmd = *code;
+    int* arg = GetArg (*code, code, Stream);
+
+    printf ("We got arg: %d\n", *arg);
+
+    StackPush (self, *arg);    
+}
+
+
+void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
+{
+    int* arg = GetArg (*code, code, Stream);
+
+    printf ("We got arg: %d\n", *arg);
+
+    *arg = StackPop (self);  
+}
+
+
+int* GetArg (int cmd, const char* code, Processor* Stream)
+{
     printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
-    int arg = 0;
 
-    if (cmd & ARG_IMMED) arg += *(int*)(code + 1);
-    if (cmd & ARG_REG)   arg += Stream->Regs[*(int*)(code + 1)];
+    int* arg = nullptr;
+    
+    if (cmd & ARG_IMMED) arg = (int*)(code + 1);
+    if (cmd & ARG_REG)   arg = Stream->Regs + *(int*)(code + 1);   
 
-    printf ("We got arg: %d\n", arg);
+    printf ("arg or ind %d\n", *(int*)(code + 1));
 
-    StackPush (self, arg);    
+    return arg;
 }
 
 

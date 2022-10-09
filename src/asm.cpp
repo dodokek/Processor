@@ -1,6 +1,8 @@
 
 #include "../include/asm.h"
 
+int LABELS[MAX_LABELS] = {};
+
 void StartAsm()
 {
     Text RawCmd = {};
@@ -47,7 +49,15 @@ int LineToCommands (char* line, char* commands, int cmds_amount)
 {
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
-        return ParsePush (commands, cmds_amount, line + PUSH_LEN, PUSH);
+        return ParseCmd (commands, cmds_amount, line + PUSH_LEN, PUSH);
+    }
+    else if (strncmp ("POP", line, POP_LEN) == 0)
+    {
+        return ParseCmd (commands, cmds_amount, line + POP_LEN, POP);
+    }
+    else if (strncmp ("JMP", line, JMP_LEN) == 0)
+    {
+        return ParseJmp (commands, cmds_amount, line + PUSH_LEN, JMP);
     }
     else
     {
@@ -68,15 +78,16 @@ int GetCmdNum (char* cmd)
     else if (strcmp (cmd, "OUT") == 0) return OUT;
     else if (strcmp (cmd, "HLT") == 0) return HLT;
     else if (strcmp (cmd, "DMP") == 0) return DMP;
-    else if (strcmp (cmd, "IN")  == 0)  return IN;
+    else if (strcmp (cmd, "IN")  == 0) return IN;
+    else if (strcmp (cmd, "JMP") == 0) return JMP;
 
     return 0;
 }
 
 
-int ParsePush (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
+int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
 {
-    commands[cmd_iter] = PUSH;
+    commands[cmd_iter] = operation;
     int tmp_dig   = 0;
 
     if (sscanf (cur_cmd_line, "%d", &tmp_dig))
@@ -92,7 +103,20 @@ int ParsePush (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
         commands[cmd_iter] |= ARG_REG;
     }
 
-    return DEFAULT_PUSH_OFFSET;
+    return DEFAULT_TWO_CMD_OFFSET;
+}
+
+
+int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
+{
+    commands[cmd_iter] = JMP;
+
+    int jump_link = 0;
+    sscanf (cur_cmd_line, "%d", &jump_link);
+
+    IntToChar (commands + cmd_iter + 1, &jump_link);
+
+    return DEFAULT_TWO_CMD_OFFSET;
 }
 
 
@@ -117,7 +141,7 @@ int GetRegNum (char* reg)
         return reg[1] - 'a';
     }
 
-    printf("recieved chars %c and %c, WA\n", reg[0], reg[1]);
+    printf("recieved chars %c and %c, WA\n", reg[0], reg[2]);
     return 0;
     
 }

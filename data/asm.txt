@@ -1,13 +1,7 @@
 PUSH 1
-PUSH 2
-ADD
-PUSH 10
-PUSH 20
-ADD
-DIV
-PUSH rcx
-PUSH rax
-ADD
+POP rbx
+PUSH rbx
+PUSH rbx
 ADD
 OUT
 HLT
