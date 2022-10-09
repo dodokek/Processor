@@ -1,13 +1,12 @@
-PUSH 10
-PUSH 15
-POP rax
-POP rbx
 PUSH 1
-PUSH 2
-POP [rax]
-POP [rbx]
-PUSH [10]
-PUSH [15]
+
+PUSH 50
+JMP 2
+PUSH 228
+PUSH 1
+ADD
+POP [1]
+:2
 ADD
 OUT
 HLT

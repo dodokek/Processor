@@ -17,6 +17,8 @@ const int DEFAULT_TWO_CMD_OFFSET = 5;
 const int WORK_DATA_LEN = 5;
 const int MAX_LABELS = 10;
 
+const int FILL_LABEL_FLAG = -1;
+
 
 enum Commands
 {
@@ -64,13 +66,13 @@ enum BitMasks
 
 void RawToBin (Text RawCmd, FILE* CmdFile);
 
-int LineToCommands (char* line, char* commands, int cmds_amount);
+int LineToCommands (char* line, char* commands, int bin_size);
 
 int GetCmdNum (char* cmd);
 
 void StartAsm();
 
-void IntToChar (char* arr, int* num);
+void IntToChar (char* arr, const int* num);
 
 int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
 
@@ -81,5 +83,7 @@ void ProcessPush (Stack* self, int arr);
 int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
 
 bool HandleRam (char* cmd_line);
+
+int ParseLabel (char* line, int bin_size);
 
 #endif

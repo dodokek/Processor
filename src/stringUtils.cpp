@@ -108,7 +108,7 @@ void trim_left (Text *MainText)
 
     for (int i = 0; i < (MainText->lines_amount); i++)
     {
-        while (!isalpha (*(MainText->lines_array[i].begin_ptr)))
+        while (*(MainText->lines_array[i].begin_ptr) == ' ')
         {
             MainText->lines_array[i].begin_ptr++;
         }

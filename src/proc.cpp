@@ -29,7 +29,7 @@ void ParseBinFile (Processor* self, char* code)
 
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", code[VERSION_INDX], code[CMD_AMT_INDX]);
 
-    self->cmds = code + WORK_DATA_LEN; //Служебная информация хз как перевести
+    self->cmds = code; //Служебная информация хз как перевести
     
 }
 
@@ -39,9 +39,9 @@ void Execute (Processor* Stream)
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
 
-    for (int cmd_counter = 0; cmd_counter < Stream->cmds_amount; cmd_counter++)
+    for (int ip = WORK_DATA_LEN; ip < Stream->cmds_amount; ip++)
     {
-        ProcessCommand (&MainStack, Stream->cmds + cmd_counter, &cmd_counter, Stream);
+        ProcessCommand (&MainStack, Stream->cmds + ip, &ip, Stream);
     }
 
     StackDtor (&MainStack);
@@ -90,8 +90,8 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
         break;
 
     case JMP:
-        printf ("Jumping\n");
         *ip = *(int*)(code + 1);
+        printf ("Jumping to %d\n", *ip);
         break;
 
     default:
