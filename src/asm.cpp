@@ -31,29 +31,33 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
         bin_size += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, commands, bin_size);
     }
 
+    //Filling stuff info
+
     commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
     commands[CMD_AMT_INDX] = bin_size;
     commands[SG_INDX1] = 'C';
     commands[SG_INDX2] = 'U';
     commands[SG_INDX3] = 'M';
 
+    //Second lap to fill labels
+
     for (int i = WORK_DATA_LEN; i < bin_size; i++)
     {
-    
-            if (commands[i] == (-1) * JMP)      commands[i] = JMP; 
-            else if (commands[i] == (-1) * JB)  commands[i] = JB;
-            else if (commands[i] == (-1) * JBE) commands[i] = JBE;
-            else if (commands[i] == (-1) * JA)  commands[i] = JA;
-            else if (commands[i] == (-1) * JAE) commands[i] = JAE;
-            else if (commands[i] == (-1) * JE)  commands[i] = JE;
-            else if (commands[i] == (-1) * JNE) commands[i] = JNE;
-            else { continue; }
+        #define DEF_JMP(name, len) \
+            if (commands[i] == (-1) * name) commands[i] = name; \
+            else
 
-            printf ("Got command %d\n", commands[i]);
+        //-----
+        #include "../include/jumps.h"
+        {continue;}
+        //-----
 
-            int label_link = LABELS[*(int*)(commands + i + 1)]; 
-            IntToChar (commands + i + 1, &label_link);  
-            
+        #undef DEF_JMP      
+
+        printf ("Got command %d\n", commands[i]);
+
+        int label_link = LABELS[*(int*)(commands + i + 1)]; 
+        IntToChar (commands + i + 1, &label_link); 
     }
 
     fwrite (commands, sizeof (int), bin_size, CmdFile);
@@ -125,14 +129,16 @@ int ParseCmd (char* commands, int bin_size, char* cur_cmd_line, int operation)
 
 int RecognizeJmp (char* commands, int bin_size, char* line)
 {
-    if (strncmp ("JB",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JB);   
-    else if (strncmp ("JBE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JBE);   
-    else if (strncmp ("JA",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JA);   
-    else if (strncmp ("JAE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JAE);   
-    else if (strncmp ("JE",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JE);   
-    else if (strncmp ("JNE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JNE);  
+    #define DEF_JMP(name, len) \
+        if (strncmp (#name,  line, len) == 0) return ParseJmp (commands, bin_size, line + len, name);  \
+        else
 
-    return 0; 
+    //-------
+    #include "../include/jumps.h"
+    {return 0;}
+    //-------
+
+    #undef DEF_JMP
 }
 
 
@@ -217,17 +223,17 @@ int GetRegNum (char* reg)
 
 int GetCmdNum (char* cmd)
 {
-    if      (strcmp (cmd, "PUSH") == 0) return PUSH;
-    else if (strcmp (cmd, "MLT") == 0) return MLT;
-    else if (strcmp (cmd, "ADD") == 0) return ADD;
-    else if (strcmp (cmd, "SUB") == 0) return SUB;
-    else if (strcmp (cmd, "DIV") == 0) return DIV;
-    else if (strcmp (cmd, "OUT") == 0) return OUT;
-    else if (strcmp (cmd, "HLT") == 0) return HLT;
-    else if (strcmp (cmd, "DMP") == 0) return DMP;
-    else if (strcmp (cmd, "IN")  == 0) return IN;
-    else if (strcmp (cmd, "JMP") == 0) return JMP;
+    
 
-    return 0;
+    #define DEF_CMD(name, num) \
+    if (strcmp (cmd, #name) == 0) return num; \
+    else
+    //------
+    #include "../include/cmds.h"
+    {return 0;}
+    //------
+    #undef DEF_CMD
+
+    
 }
 

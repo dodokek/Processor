@@ -22,26 +22,18 @@ const int MAX_LABELS = 10;
 const int FILL_LABEL_FLAG = -1;
 
 
+
 enum Commands
 {
-    HLT = 0,
-    PUSH = 1,
-    MLT,
-    ADD,
-    SUB,
-    DIV,
-    POP,
-    OUT,
-    DMP,
-    JMP,
-    JB,
-    JBE,
-    JA,
-    JAE,
-    JE,
-    JNE,
-    IN
+    #define DEF_CMD(name, num) \
+    name = num,
+
+    #include "cmds.h"
+
+    #undef DEF_CMD
 };
+
+
 
 
 enum Registers
