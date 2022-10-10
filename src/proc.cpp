@@ -50,17 +50,19 @@ void Execute (Processor* Stream)
 
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 {
+
     printf ("Currently working on %d\n", *code & CMD_BITMASK);
+    printf ("Ip %4d: ", *ip);
     switch (*code & CMD_BITMASK)
     {
     case PUSH:
         ProcessPush (self, code, *ip, Stream);
         (*ip) += INT_OFFSET;
         // StackDump (self);
-
         break;
 
     case ADD:
+        printf ("Adding\n");
         StackPush (self, StackPop(self) + StackPop(self));
         // StackDump (self);  
         break;
@@ -76,7 +78,7 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 
     case POP:
         ProcessPop (self, code, *ip, Stream);
-        // printf ("Register value: %d\n", Stream->Regs[0]);
+        printf ("Popping.\n");
         (*ip) += INT_OFFSET;
         break;
 
@@ -90,7 +92,7 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
         break;
 
     case JMP:
-        *ip = *(int*)(code + 1);
+        *ip = *(int*)(code + 1) - 1;
         printf ("Jumping to %d\n", *ip);
         break;
 

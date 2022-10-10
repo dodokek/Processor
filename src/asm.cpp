@@ -15,7 +15,6 @@ void StartAsm()
     RawToBin (RawCmd, CmdFile);
 
     TextDestr (&RawCmd);
-
     fclose (RawCmdFile);
     fclose (CmdFile);
 }
@@ -32,8 +31,8 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
         bin_size += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, commands, bin_size);
     }
 
-    commands[VERSION_INDX] = VERSION;
-    commands[CMD_AMT_INDX] = bin_size - WORK_DATA_LEN;
+    commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
+    commands[CMD_AMT_INDX] = bin_size;
     commands[SG_INDX1] = 'C';
     commands[SG_INDX2] = 'U';
     commands[SG_INDX3] = 'M';
@@ -105,10 +104,9 @@ int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
     if (HandleRam (cur_cmd_line))
     {
         commands[cmd_iter] |= ARG_MEM;
-        cur_cmd_line++;
-        printf ("TRIMMED STR IS %s \n\n", cur_cmd_line);
-
-    }
+        cur_cmd_line++;                 // skipping '[' symbol
+        // printf ("TRIMMED STR IS %s \n\n", cur_cmd_line);
+    }   
 
     int tmp_dig   = 0;
 
@@ -149,8 +147,6 @@ int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
         IntToChar (commands + cmd_iter + 1, &jump_link);
     }
 
-
-
     return DEFAULT_TWO_CMD_OFFSET;
 }
 
@@ -158,12 +154,12 @@ int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
 int ParseLabel (char* line, int bin_size)
 {
     int label_indx = 0;
-    sscanf (line + 1, "%d", &label_indx);
+    sscanf (line + 1, "%d", &label_indx); //+1 skips ':' sym
 
     LABELS[label_indx] = bin_size;
     printf ("Cur Label has val: %d\n", LABELS[label_indx]);
 
-    return 0;
+    return ZERO_OFFSET;
 }
 
 

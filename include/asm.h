@@ -14,6 +14,7 @@ const int VERSION = 2;
 const int INT_OFFSET = 4;
 const int DEFAULT_CMD_OFFSET = 1;
 const int DEFAULT_TWO_CMD_OFFSET = 5;
+const int ZERO_OFFSET = 0;
 const int WORK_DATA_LEN = 5;
 const int MAX_LABELS = 10;
 
@@ -32,6 +33,12 @@ enum Commands
     OUT,
     DMP,
     JMP,
+    JB,
+    JBE,
+    JA,
+    JAE,
+    JE,
+    JNE,
     IN
 };
 
@@ -57,11 +64,11 @@ enum ParseData
 
 enum BitMasks
 {
-    CMD_BITMASK = 0b00001111,
-    SPEC_BITMASK = 0b11110000,
-    ARG_IMMED = 0b00010000,
-    ARG_REG   = 0b00100000,
-    ARG_MEM   = 0b01000000,
+    CMD_BITMASK = 0b00011111,
+    SPEC_BITMASK = 0b11100000,
+    ARG_IMMED = 0b00100000,
+    ARG_REG   = 0b01000000,
+    ARG_MEM   = 0b10000000,
 };
 
 void RawToBin (Text RawCmd, FILE* CmdFile);
