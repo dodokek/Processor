@@ -51,7 +51,7 @@ void Execute (Processor* Stream)
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 {
 
-    printf ("Currently working on %d\n", *code & CMD_BITMASK);
+    printf ("----Currently working on %d-----\n", *code & CMD_BITMASK);
     printf ("Ip %4d: ", *ip);
     switch (*code & CMD_BITMASK)
     {
@@ -94,6 +94,83 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
     case JMP:
         *ip = *(int*)(code + 1) - 1;
         printf ("Jumping to %d\n", *ip);
+        break;
+    
+    case JB:
+        if (StackPop(self) < StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;   
+        }
+        break;
+
+    case JBE:
+        if (StackPop(self) <= StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;   
+        }
+
+        break;
+
+    case JA:
+        if (StackPop(self) > StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;
+        }   
+
+        break;
+
+    case JAE:
+        if (StackPop(self) >= StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;
+        }   
+
+        break;
+
+    case JE:
+        if (StackPop(self) == StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;
+        }   
+
+        break;
+    
+    case JNE:
+        if (StackPop(self) != StackPop(self))
+        {
+            *ip = *(int*)(code + 1) - 1;
+            printf ("Jumping to %d\n", *ip);
+        }
+        else
+        {
+            *ip += INT_OFFSET;
+        }   
+
         break;
 
     default:

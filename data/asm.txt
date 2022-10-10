@@ -1,15 +1,20 @@
-PUSH 10
-PUSH 20
-POP [1]
-POP [2]
-PUSH [1]
-POP rcx
+PUSH 0
+POP rax
 :2
-PUSH rcx
-PUSH rcx
-JMP 2
+
+PUSH [1]
+PUSH 5
 ADD
-OUT
-OUT
+POP [1]
+
+PUSH rax
+PUSH 1
+ADD
+POP rax
+
+PUSH rax
+PUSH 10
+JA 2
+PUSH [1]
 OUT
 HLT

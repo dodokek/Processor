@@ -39,12 +39,21 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
 
     for (int i = WORK_DATA_LEN; i < bin_size; i++)
     {
-        if (commands[i] == FILL_LABEL_FLAG)
-        {
-            commands[i] = JMP;
+    
+            if (commands[i] == (-1) * JMP)      commands[i] = JMP; 
+            else if (commands[i] == (-1) * JB)  commands[i] = JB;
+            else if (commands[i] == (-1) * JBE) commands[i] = JBE;
+            else if (commands[i] == (-1) * JA)  commands[i] = JA;
+            else if (commands[i] == (-1) * JAE) commands[i] = JAE;
+            else if (commands[i] == (-1) * JE)  commands[i] = JE;
+            else if (commands[i] == (-1) * JNE) commands[i] = JNE;
+            else { continue; }
+
+            printf ("Got command %d\n", commands[i]);
+
             int label_link = LABELS[*(int*)(commands + i + 1)]; 
-            IntToChar (commands + i + 1, &label_link);    
-        }
+            IntToChar (commands + i + 1, &label_link);  
+            
     }
 
     fwrite (commands, sizeof (int), bin_size, CmdFile);
@@ -67,6 +76,10 @@ int LineToCommands (char* line, char* commands, int bin_size)
     {
         return ParseJmp (commands, bin_size, line + JMP_LEN, JMP);
     }
+    else if (line[0] == 'J')
+    {
+        return RecognizeJmp (commands, bin_size, line);
+    }
     else if (line[0] == ':')
     {
         return ParseLabel (line, bin_size);
@@ -80,30 +93,13 @@ int LineToCommands (char* line, char* commands, int bin_size)
 }
 
 
-int GetCmdNum (char* cmd)
+int ParseCmd (char* commands, int bin_size, char* cur_cmd_line, int operation)
 {
-    if      (strcmp (cmd, "PUSH") == 0) return PUSH;
-    else if (strcmp (cmd, "MLT") == 0) return MLT;
-    else if (strcmp (cmd, "ADD") == 0) return ADD;
-    else if (strcmp (cmd, "SUB") == 0) return SUB;
-    else if (strcmp (cmd, "DIV") == 0) return DIV;
-    else if (strcmp (cmd, "OUT") == 0) return OUT;
-    else if (strcmp (cmd, "HLT") == 0) return HLT;
-    else if (strcmp (cmd, "DMP") == 0) return DMP;
-    else if (strcmp (cmd, "IN")  == 0) return IN;
-    else if (strcmp (cmd, "JMP") == 0) return JMP;
-
-    return 0;
-}
-
-
-int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
-{
-    commands[cmd_iter] = operation;
+    commands[bin_size] = operation;
 
     if (HandleRam (cur_cmd_line))
     {
-        commands[cmd_iter] |= ARG_MEM;
+        commands[bin_size] |= ARG_MEM;
         cur_cmd_line++;                 // skipping '[' symbol
         // printf ("TRIMMED STR IS %s \n\n", cur_cmd_line);
     }   
@@ -112,24 +108,36 @@ int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
 
     if (sscanf (cur_cmd_line, "%d", &tmp_dig))
     {
-        commands[cmd_iter] |= ARG_IMMED;
-        IntToChar (commands + cmd_iter + 1, &tmp_dig);
+        commands[bin_size] |= ARG_IMMED;
+        IntToChar (commands + bin_size + 1, &tmp_dig);
     }
     else
     {
         int reg_number = GetRegNum (cur_cmd_line);
 
-        IntToChar(commands + cmd_iter + 1, &reg_number);
-        commands[cmd_iter] |= ARG_REG;
+        IntToChar(commands + bin_size + 1, &reg_number);
+        commands[bin_size] |= ARG_REG;
     }
 
     return DEFAULT_TWO_CMD_OFFSET;
 }
 
 
-int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
+int RecognizeJmp (char* commands, int bin_size, char* line)
 {
+    if (strncmp ("JB",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JB);   
+    else if (strncmp ("JBE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JBE);   
+    else if (strncmp ("JA",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JA);   
+    else if (strncmp ("JAE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JAE);   
+    else if (strncmp ("JE",  line, JMP_LEN_SHORT) == 0) return ParseJmp (commands, bin_size, line + JMP_LEN_SHORT, JE);   
+    else if (strncmp ("JNE", line, JMP_LEN) == 0)       return ParseJmp (commands, bin_size, line + JMP_LEN, JNE);  
 
+    return 0; 
+}
+
+
+int ParseJmp (char* commands, int bin_size, char* cur_cmd_line, int operation)
+{
     printf ("Parsing jump:\n");
 
     int jump_link = 0;
@@ -138,13 +146,13 @@ int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation)
 
     if (LABELS[jump_link] != 0) 
     {
-        commands[cmd_iter] = operation;
-        IntToChar (commands + cmd_iter + 1, (LABELS + jump_link));
+        commands[bin_size] = operation;
+        IntToChar (commands + bin_size + 1, (LABELS + jump_link));
     }
     else
     { 
-        commands[cmd_iter] = FILL_LABEL_FLAG;
-        IntToChar (commands + cmd_iter + 1, &jump_link);
+        commands[bin_size] = (-1) * operation;
+        IntToChar (commands + bin_size + 1, &jump_link);
     }
 
     return DEFAULT_TWO_CMD_OFFSET;
@@ -204,5 +212,22 @@ int GetRegNum (char* reg)
 
     printf("recieved chars %c and %c, WA\n", reg[0], reg[2]);
     return 0;
-    
 }
+
+
+int GetCmdNum (char* cmd)
+{
+    if      (strcmp (cmd, "PUSH") == 0) return PUSH;
+    else if (strcmp (cmd, "MLT") == 0) return MLT;
+    else if (strcmp (cmd, "ADD") == 0) return ADD;
+    else if (strcmp (cmd, "SUB") == 0) return SUB;
+    else if (strcmp (cmd, "DIV") == 0) return DIV;
+    else if (strcmp (cmd, "OUT") == 0) return OUT;
+    else if (strcmp (cmd, "HLT") == 0) return HLT;
+    else if (strcmp (cmd, "DMP") == 0) return DMP;
+    else if (strcmp (cmd, "IN")  == 0) return IN;
+    else if (strcmp (cmd, "JMP") == 0) return JMP;
+
+    return 0;
+}
+

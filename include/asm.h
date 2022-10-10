@@ -9,6 +9,7 @@
 const int PUSH_LEN = 4 ;
 const int POP_LEN = 3 ;
 const int JMP_LEN = 3 ;
+const int JMP_LEN_SHORT = 2;
 const int VERSION = 2;
 
 const int INT_OFFSET = 4;
@@ -92,5 +93,7 @@ int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
 bool HandleRam (char* cmd_line);
 
 int ParseLabel (char* line, int bin_size);
+
+int RecognizeJmp (char* commands, int bin_size, char* line);
 
 #endif
