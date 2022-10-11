@@ -22,6 +22,13 @@ const int MAX_LABELS = 10;
 const int FILL_LABEL_FLAG = -1;
 
 
+struct Assembler
+{
+    char* commands;
+    int bin_size;
+    int* labels;
+};
+
 
 enum Commands
 {
@@ -32,8 +39,6 @@ enum Commands
 
     #undef DEF_CMD
 };
-
-
 
 
 enum Registers
@@ -66,7 +71,7 @@ enum BitMasks
 
 void RawToBin (Text RawCmd, FILE* CmdFile);
 
-int LineToCommands (char* line, char* commands, int bin_size);
+int LineToCommands (char* line, Assembler* Stream);
 
 int GetCmdNum (char* cmd);
 
@@ -74,18 +79,26 @@ void StartAsm();
 
 void IntToChar (char* arr, const int* num);
 
-int ParseCmd (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
+int ParseCmd (Assembler* Stream, char* cur_cmd_line, int operation);
 
 int GetRegNum (char* reg);
 
 void ProcessPush (Stack* self, int arr);
 
-int ParseJmp (char* commands, int cmd_iter, char* cur_cmd_line, int operation);
+int ParseJmp (Assembler* Stream, char* cur_cmd_line, int operation);
 
 bool HandleRam (char* cmd_line);
 
-int ParseLabel (char* line, int bin_size);
+int ParseLabel (Assembler* Stream,char* line);
 
-int RecognizeJmp (char* commands, int bin_size, char* line);
+int RecognizeJmp (Assembler* Stream, char* line);
+
+void FillMissingLabels (Assembler* Stream);
+
+void FillWorkData (Assembler* Stream);
+
+void StreamCtor (Assembler* Stream, Text* RawCmd);
+
+void StreamDtor (Assembler* Stream);
 
 #endif

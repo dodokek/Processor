@@ -1,7 +1,6 @@
 
 #include "../include/asm.h"
 
-int LABELS[MAX_LABELS] = {};
 
 void StartAsm()
 {
@@ -22,87 +21,80 @@ void StartAsm()
 
 void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    char* commands = (char*) calloc (sizeof (int), RawCmd.lines_amount * 2);
+    Assembler Stream = {};
+    StreamCtor (&Stream, &RawCmd);
 
-    int bin_size = WORK_DATA_LEN;
+    // Processing every line
 
     for (int line_ctr = 0; line_ctr < RawCmd.lines_amount; line_ctr++)
     {
-        bin_size += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, commands, bin_size);
+        Stream.bin_size += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, &Stream);
     }
 
     //Filling stuff info
 
-    commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
-    commands[CMD_AMT_INDX] = bin_size;
-    commands[SG_INDX1] = 'C';
-    commands[SG_INDX2] = 'U';
-    commands[SG_INDX3] = 'M';
+    FillWorkData (&Stream);
 
     //Second lap to fill labels
 
-    for (int i = WORK_DATA_LEN; i < bin_size; i++)
-    {
-        #define DEF_JMP(name, len) \
-            if (commands[i] == (-1) * name) commands[i] = name; \
-            else
+    FillMissingLabels (&Stream);
 
-        //-----
-        #include "../include/jumps.h"
-        {continue;}
-        //-----
+    // Destructors
 
-        #undef DEF_JMP      
-
-        printf ("Got command %d\n", commands[i]);
-
-        int label_link = LABELS[*(int*)(commands + i + 1)]; 
-        IntToChar (commands + i + 1, &label_link); 
-    }
-
-    fwrite (commands, sizeof (int), bin_size, CmdFile);
-    FREE(commands);
+    fwrite (Stream.commands, sizeof (int), Stream.bin_size, CmdFile);
+    
+    StreamDtor (&Stream);
 }
 
 
-int LineToCommands (char* line, char* commands, int bin_size)
+void FillWorkData (Assembler* Stream)
+{
+    Stream->commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
+    Stream->commands[CMD_AMT_INDX] = Stream->bin_size;
+    Stream->commands[SG_INDX1] = 'C';
+    Stream->commands[SG_INDX2] = 'U';
+    Stream->commands[SG_INDX3] = 'M';
+}
+
+
+int LineToCommands (char* line, Assembler* Stream)
 {
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
-        return ParseCmd (commands, bin_size, line + PUSH_LEN + 1, PUSH);
+        return ParseCmd (Stream, line + PUSH_LEN + 1, PUSH);
     }
     else if (strncmp ("POP", line, POP_LEN) == 0)
     {
-        return ParseCmd (commands, bin_size, line + POP_LEN + 1, POP);
+        return ParseCmd (Stream, line + POP_LEN + 1, POP);
     }
     else if (strncmp ("JMP", line, JMP_LEN) == 0)
     {
-        return ParseJmp (commands, bin_size, line + JMP_LEN, JMP);
+        return ParseJmp (Stream, line + JMP_LEN, JMP);
     }
     else if (line[0] == 'J')
     {
-        return RecognizeJmp (commands, bin_size, line);
+        return RecognizeJmp (Stream, line);
     }
     else if (line[0] == ':')
     {
-        return ParseLabel (line, bin_size);
+        return ParseLabel (Stream, line);
     }
     else
     {
-        commands[bin_size] = GetCmdNum (line);
+        Stream->commands[Stream->bin_size] = GetCmdNum (line);
 
         return DEFAULT_CMD_OFFSET;
     }
 }
 
 
-int ParseCmd (char* commands, int bin_size, char* cur_cmd_line, int operation)
+int ParseCmd (Assembler* Stream, char* cur_cmd_line, int operation)
 {
-    commands[bin_size] = operation;
+    Stream->commands[Stream->bin_size] = operation;
 
     if (HandleRam (cur_cmd_line))
     {
-        commands[bin_size] |= ARG_MEM;
+        Stream->commands[Stream->bin_size] |= ARG_MEM;
         cur_cmd_line++;                 // skipping '[' symbol
         // printf ("TRIMMED STR IS %s \n\n", cur_cmd_line);
     }   
@@ -111,25 +103,25 @@ int ParseCmd (char* commands, int bin_size, char* cur_cmd_line, int operation)
 
     if (sscanf (cur_cmd_line, "%d", &tmp_dig))
     {
-        commands[bin_size] |= ARG_IMMED;
-        IntToChar (commands + bin_size + 1, &tmp_dig);
+        Stream->commands[Stream->bin_size] |= ARG_IMMED;
+        IntToChar (Stream->commands + Stream->bin_size + 1, &tmp_dig);
     }
     else
     {
         int reg_number = GetRegNum (cur_cmd_line);
 
-        IntToChar(commands + bin_size + 1, &reg_number);
-        commands[bin_size] |= ARG_REG;
+        IntToChar(Stream->commands + Stream->bin_size + 1, &reg_number);
+        Stream->commands[Stream->bin_size] |= ARG_REG;
     }
 
     return DEFAULT_TWO_CMD_OFFSET;
 }
 
 
-int RecognizeJmp (char* commands, int bin_size, char* line)
+int RecognizeJmp (Assembler* Stream, char* line)
 {
     #define DEF_JMP(name, len) \
-        if (strncmp (#name,  line, len) == 0) return ParseJmp (commands, bin_size, line + len, name);  \
+        if (strncmp (#name,  line, len) == 0) return ParseJmp (Stream, line + len, name);  \
         else
 
     //-------
@@ -141,7 +133,7 @@ int RecognizeJmp (char* commands, int bin_size, char* line)
 }
 
 
-int ParseJmp (char* commands, int bin_size, char* cur_cmd_line, int operation)
+int ParseJmp (Assembler* Stream, char* cur_cmd_line, int operation)
 {
     printf ("Parsing jump:\n");
 
@@ -149,28 +141,29 @@ int ParseJmp (char* commands, int bin_size, char* cur_cmd_line, int operation)
     sscanf (cur_cmd_line, "%d", &jump_link);
     printf ("Jumplink is %d\n", jump_link);
 
-    if (LABELS[jump_link] != 0) 
+    if (Stream->labels[jump_link] != 0) 
     {
-        commands[bin_size] = operation;
-        IntToChar (commands + bin_size + 1, (LABELS + jump_link));
+        Stream->commands[Stream->bin_size] = operation;
+        IntToChar (Stream->commands + Stream->bin_size + 1, (Stream->labels + jump_link));
     }
     else
     { 
-        commands[bin_size] = (-1) * operation;
-        IntToChar (commands + bin_size + 1, &jump_link);
+        Stream->commands[Stream->bin_size] = (-1) * operation;
+        IntToChar (Stream->commands + Stream->bin_size + 1, &jump_link);
     }
 
     return DEFAULT_TWO_CMD_OFFSET;
 }
 
 
-int ParseLabel (char* line, int bin_size)
+int ParseLabel (Assembler* Stream, char* line)
 {
     int label_indx = 0;
     sscanf (line + 1, "%d", &label_indx); //+1 skips ':' sym
 
-    LABELS[label_indx] = bin_size;
-    printf ("Cur Label has val: %d\n", LABELS[label_indx]);
+    Stream->labels[label_indx] = Stream->bin_size;
+
+    printf ("Cur Label has val: %d\n", Stream->labels[label_indx]);
 
     return ZERO_OFFSET;
 }
@@ -191,6 +184,46 @@ bool HandleRam (char* cmd_line)
         return true;
     }
     return false;
+}
+
+
+void FillMissingLabels (Assembler* Stream)
+{
+    for (int i = WORK_DATA_LEN; i < Stream->bin_size; i++)
+    {
+        #define DEF_JMP(name, len) \
+            if (Stream->commands[i] == (-1) * name) Stream->commands[i] = name; \
+            else
+
+        //-----
+        #include "../include/jumps.h"
+        {continue;}
+        //-----
+
+        #undef DEF_JMP      
+
+        printf ("Got command %d\n", Stream->commands[i]);
+
+        int label_link = Stream->labels[*(int*)(Stream->commands + i + 1)]; 
+        IntToChar (Stream->commands + i + 1, &label_link); 
+    }
+}
+
+
+void StreamCtor (Assembler* Stream, Text* RawCmd)
+{
+    Stream->commands = (char*) calloc (sizeof (int), RawCmd->lines_amount * 2);
+    Stream->labels = (int*)  calloc (sizeof(int), MAX_LABELS);
+    Stream->bin_size = WORK_DATA_LEN;
+}
+
+
+void StreamDtor (Assembler* Stream)
+{
+    FREE(Stream->commands);
+    FREE(Stream->labels);
+
+    Stream->bin_size = 0;
 }
 
 
@@ -222,17 +255,15 @@ int GetRegNum (char* reg)
 
 int GetCmdNum (char* cmd)
 {
-    
-
     #define DEF_CMD(name, num, code) \
     if (strcmp (cmd, #name) == 0) return num; \
     else
+
     //------
     #include "../include/cmds.h"
     {return 0;}
     //------
-    #undef DEF_CMD
 
-    
+    #undef DEF_CMD
 }
 
