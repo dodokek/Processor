@@ -61,7 +61,6 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
     }
 
     fwrite (commands, sizeof (int), bin_size, CmdFile);
-
     FREE(commands);
 }
 
@@ -225,7 +224,7 @@ int GetCmdNum (char* cmd)
 {
     
 
-    #define DEF_CMD(name, num) \
+    #define DEF_CMD(name, num, code) \
     if (strcmp (cmd, #name) == 0) return num; \
     else
     //------

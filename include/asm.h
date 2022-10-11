@@ -25,7 +25,7 @@ const int FILL_LABEL_FLAG = -1;
 
 enum Commands
 {
-    #define DEF_CMD(name, num) \
+    #define DEF_CMD(name, num, code) \
     name = num,
 
     #include "cmds.h"

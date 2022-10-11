@@ -51,132 +51,25 @@ void Execute (Processor* Stream)
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 {
 
-    printf ("----Currently working on %d-----\n", *code & CMD_BITMASK);
-    printf ("Ip %4d: ", *ip);
+    // printf ("----Currently working on %d-----\n", *code & CMD_BITMASK);
+    // printf ("Ip %4d: ", *ip);
+
+    #define DEF_CMD(name, len, code) \
+        case name:                   \
+            code                     \
+            break;              
+
     switch (*code & CMD_BITMASK)
     {
-    case PUSH:
-        ProcessPush (self, code, *ip, Stream);
-        (*ip) += INT_OFFSET;
-        // StackDump (self);
-        break;
+        #include "../include/cmds.h"
 
-    case ADD:
-        printf ("Adding\n");
-        StackPush (self, StackPop(self) + StackPop(self));
-        // StackDump (self);  
-        break;
 
-    case SUB:
-        StackPush (self, -StackPop (self) + StackPop (self));
-        break;
-
-    case DIV:
-        StackPush (self, StackPop(self) / StackPop(self));
-        // StackDump (self);
-        break;
-
-    case POP:
-        ProcessPop (self, code, *ip, Stream);
-        printf ("Popping.\n");
-        (*ip) += INT_OFFSET;
-        break;
-
-    case OUT:
-        // StackDump (self);
-        printf ("Stack out: %d\n", StackPop (self));
-        break;
-
-    case HLT:
-        printf ("End of commands\n");
-        break;
-
-    case JMP:
-        *ip = *(int*)(code + 1) - 1;
-        printf ("Jumping to %d\n", *ip);
-        break;
-    
-    case JB:
-        if (StackPop(self) < StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;   
-        }
-        break;
-
-    case JBE:
-        if (StackPop(self) <= StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;   
-        }
-
-        break;
-
-    case JA:
-        if (StackPop(self) > StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;
-        }   
-
-        break;
-
-    case JAE:
-        if (StackPop(self) >= StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;
-        }   
-
-        break;
-
-    case JE:
-        if (StackPop(self) == StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;
-        }   
-
-        break;
-    
-    case JNE:
-        if (StackPop(self) != StackPop(self))
-        {
-            *ip = *(int*)(code + 1) - 1;
-            printf ("Jumping to %d\n", *ip);
-        }
-        else
-        {
-            *ip += INT_OFFSET;
-        }   
-
-        break;
-
-    default:
-        printf ("UK %d\n", *code);
-        break;
+        default:
+            printf ("UK %d\n", *code);
+            break;
     }
+
+    #undef DEF_CMD
 }
 
 
