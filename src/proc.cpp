@@ -46,6 +46,7 @@ void Execute (Processor* Stream)
 
     for (int ip = WORK_DATA_LEN; ip < Stream->cmds_amount; ip++)
     {
+        printf ("Ip %3d: ", ip);
         ProcessCommand (&MainStack, Stream->cmds + ip, &ip, Stream);
     }
 

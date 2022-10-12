@@ -61,7 +61,7 @@ DEF_CMD(JB, 10,
     }
     else
     {
-        *ip += INT_OFFSET;   
+        *ip += BIG_OFFSET;   
     }
 })
 
@@ -74,7 +74,7 @@ DEF_CMD(JBE, 11,
     }
     else
     {
-        *ip += INT_OFFSET;   
+        *ip += BIG_OFFSET;   
     }
 })
 
@@ -87,7 +87,7 @@ DEF_CMD(JA, 12,
     }
     else
     {
-        *ip += INT_OFFSET;
+        *ip += BIG_OFFSET;
     }
 })
 
@@ -100,7 +100,7 @@ DEF_CMD(JAE, 13,
         }
         else
         {
-            *ip += INT_OFFSET;
+            *ip += BIG_OFFSET;
         }  
 })
 
@@ -113,7 +113,7 @@ DEF_CMD(JE, 14,
     }
     else
     {
-        *ip += INT_OFFSET;
+        *ip += BIG_OFFSET;
     }   
 })
 
@@ -126,7 +126,7 @@ DEF_CMD(JNE, 15,
     }
     else
     {
-        *ip += INT_OFFSET;
+        *ip += BIG_OFFSET;
     } 
 })
 

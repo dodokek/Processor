@@ -156,19 +156,23 @@ int ParseJmp (Assembler* Stream, char* cur_cmd_line, int jmp_type)
     sscanf (cur_cmd_line, "%s", label_name);
 
     printf (" Working with label %s\n", label_name);
-    int label_pos = FindLabel (Stream, HashLabel(label_name));
+    int label_indx = FindLabel (Stream, HashLabel(label_name));
 
-    Stream->commands[Stream->bin_size] = jmp_type;
 
-    if (label_pos != 0) 
+    if (label_indx != -1) 
     {
-        *(int*)(Stream->commands + Stream->bin_size + 1) = label_pos;
+        *(int*)(Stream->commands + Stream->bin_size + 1) = Stream->labels[label_indx].label_pos;
     }
     else
     { 
         *(int*)(Stream->commands + Stream->bin_size + 1) = HashLabel (label_name);
+        Stream->commands[Stream->bin_size + BIG_OFFSET]  = 1;
+        printf ("SOMETHING WRONG, filling byte %d in pos %d\n", Stream->commands[Stream->bin_size + BIG_OFFSET], Stream->bin_size + BIG_OFFSET);
+
         printf ("@@@@Leaving hash func %d\n", *(int*)(Stream->commands + Stream->bin_size + 1));
     }
+
+    Stream->commands[Stream->bin_size] = jmp_type;
 
     return JMP_OFFSET;
 }
@@ -184,7 +188,7 @@ int FindLabel (Assembler* Stream, int label_hash)
             return i;
         }
     }
-    return 0;
+    return -1;
 }
 
 
@@ -232,9 +236,12 @@ void FillMissingLabels (Assembler* Stream)
     // jmp_type
     for (int i = WORK_DATA_LEN; i < Stream->bin_size; i++)
     {
-        #define DEF_JMP(name, len) \
-            if (Stream->commands[i] == (-1) * name) Stream->commands[i] = name; \
-            else
+        #define DEF_JMP(name, len)                                                  \
+            if (Stream->commands[i] == name)                                        \
+            {                                                                       \
+                printf ("NOW CHECKING BYTE %d\n", Stream->commands[i + JMP_OFFSET]);   \
+                if (Stream->commands[i + JMP_OFFSET] == 0) continue;                \
+            } else                                                   
 
         //-----
         #include "../include/jumps.h"

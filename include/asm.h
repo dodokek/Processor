@@ -19,6 +19,7 @@ enum LEN
 enum OFSSETS
 {
     INT_OFFSET = 4,
+    BIG_OFFSET = 5,
     DEFAULT_CMD_OFFSET = 1,
     DEFAULT_TWO_CMD_OFFSET = 5,
     JMP_OFFSET = 6,
