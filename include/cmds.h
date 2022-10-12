@@ -78,7 +78,8 @@ DEF_CMD(JBE, 11,
     }
 })
 
-DEF_CMD(JA, 12, {
+DEF_CMD(JA, 12, 
+{
     if (StackPop(self) > StackPop(self))
     {
         *ip = *(int*)(code + 1) - 1;

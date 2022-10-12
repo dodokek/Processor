@@ -6,27 +6,51 @@
 #include "stack.h"
 
 
-const int PUSH_LEN = 4 ;
-const int POP_LEN = 3 ;
-const int JMP_LEN = 3 ;
-const int JMP_LEN_SHORT = 2;
-const int VERSION = 2;
-
-const int INT_OFFSET = 4;
-const int DEFAULT_CMD_OFFSET = 1;
-const int DEFAULT_TWO_CMD_OFFSET = 5;
-const int ZERO_OFFSET = 0;
-const int WORK_DATA_LEN = 5;
-const int MAX_LABELS = 10;
-
-const int FILL_LABEL_FLAG = -1;
+enum LEN
+{
+    PUSH_LEN = 4,
+    POP_LEN = 4,
+    JMP_LEN = 3,
+    JMP_LEN_SHORT = 2,
+    WORK_DATA_LEN = 5,
+};
 
 
+enum OFSSETS
+{
+    INT_OFFSET = 4,
+    DEFAULT_CMD_OFFSET = 1,
+    DEFAULT_TWO_CMD_OFFSET = 5,
+    JMP_OFFSET = 6,
+    ZERO_OFFSET = 0,
+};
+
+
+enum SIZES
+{
+    VERSION = 2,
+    MAX_LABELS = 10, 
+    FILL_LABEL_FLAG = -1,
+    MAX_CMD_LEN = 20,
+};
+
+
+
+struct Label 
+{
+    char* name;
+    int label_pos; 
+    int hash;
+};
+
+
+// 
 struct Assembler
 {
     char* commands;
-    int bin_size;
-    int* labels;
+    int bin_size;  // ??
+    Label* labels; // label
+    int labels_amount;
 };
 
 
@@ -85,13 +109,13 @@ int GetRegNum (char* reg);
 
 void ProcessPush (Stack* self, int arr);
 
-int ParseJmp (Assembler* Stream, char* cur_cmd_line, int operation);
+int ParseJmp (Assembler* Stream, char* cur_cmd_line, int jmp_type);
 
 bool HandleRam (char* cmd_line);
 
 int ParseLabel (Assembler* Stream,char* line);
 
-int RecognizeJmp (Assembler* Stream, char* line);
+int IsJmp (Assembler* Stream, char* line);
 
 void FillMissingLabels (Assembler* Stream);
 
@@ -100,5 +124,9 @@ void FillWorkData (Assembler* Stream);
 void StreamCtor (Assembler* Stream, Text* RawCmd);
 
 void StreamDtor (Assembler* Stream);
+
+int FindLabel (Assembler* Stream, int label_hash);
+
+int HashLabel (char* label);
 
 #endif

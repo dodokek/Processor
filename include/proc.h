@@ -6,27 +6,30 @@
 #include "fileUtils.h"
 #include "asm.h"
 
+
 //-----------------------------------------------
-const int MAX_BIN_SIZE = 100;
-const int MAX_CMDS_AMOUNT = 50;
-const int PROC_VERSION = 2;
-const int REG_AMOUNT = 4;
-const int RAM_SIZE = 100;
+enum ProcInfo
+{
+    MAX_BIN_SIZE = 100,
+    MAX_CMDS_AMOUNT = 50,
+    PROC_VERSION = 2,
+    REG_AMOUNT = 4,
+    RAM_SIZE = 100,
+};
 //-----------------------------------------------
 
 
 struct Processor
 {
-    int version;
-    int cmds_amount;
+    int version; // ???
+
+    int cmds_amount; 
     const char* cmds;
 
     int Regs[4];
 
     int* Ram;
 };
-
-
 
 
 void StartProc ();

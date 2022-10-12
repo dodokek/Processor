@@ -1,20 +1,2 @@
-PUSH 0
-POP rax
-:2
-
-PUSH [1]
-PUSH 5
-ADD
-POP [1]
-
-PUSH rax
-PUSH 1
-ADD
-POP rax
-
-PUSH rax
-PUSH 10
-JA 2
-PUSH [1]
+PUSH 500
 OUT
-HLT

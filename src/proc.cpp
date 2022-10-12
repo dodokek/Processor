@@ -4,9 +4,10 @@
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE);
+    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); // ??
     fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
 
+    // ??
     Processor Stream = {};
     ProcCtor (&Stream);
 
@@ -25,11 +26,15 @@ void ParseBinFile (Processor* self, char* code)
     self->version = code[VERSION_INDX];
     self->cmds_amount = code[CMD_AMT_INDX];
 
-    if (code[SG_INDX1] != 'C' || code[SG_INDX2] != 'U' || code[SG_INDX3] != 'M') printf ("Wrong signature!\n");
+    if (code[SG_INDX1] != 'C' || 
+        code[SG_INDX2] != 'U' || 
+        code[SG_INDX3] != 'M') 
+        printf ("Wrong signature!\n");
 
-    printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", code[VERSION_INDX], code[CMD_AMT_INDX]);
+    printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
+            code[VERSION_INDX], code[CMD_AMT_INDX]);
 
-    self->cmds = code; //Служебная информация хз как перевести
+    self->cmds = code; // Служебная информация хз как перевести
     
 }
 
@@ -65,7 +70,7 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 
 
         default:
-            printf ("UK %d\n", *code);
+            printf ("SIGILL %d\n", *code);
             break;
     }
 
@@ -82,7 +87,7 @@ void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
     StackPush (self, *arg);    
 }
 
-
+// handle
 void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
 {
     int* arg = GetArg (*code, code, Stream);
