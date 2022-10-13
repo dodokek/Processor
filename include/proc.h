@@ -36,18 +36,14 @@ void StartProc ();
 
 void ParseBinFile (Processor* self, char* code);
 
-void Execute (Processor* Stream);
+void Execute (Processor* CpuInfo);
 
-void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream);
-
-void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream);
-
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream);
+void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo);
 
 void ProcCtor (Processor* self);
 
 void ProcDtor (Processor* self);
 
-int* GetArg (int cmd, const char* code, Processor* Stream);
+int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val);
 
 #endif

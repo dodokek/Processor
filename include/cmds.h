@@ -1,14 +1,45 @@
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
-
+    exit(0);
 })
 
 DEF_CMD(PUSH, 1,
 {
-    ProcessPush (self, code, *ip, Stream);
-    (*ip) += INT_OFFSET;
+    int value = 0;
+    int* arg = GetArg (*code, code, CpuInfo, &value);
+    // printf ("Got value %d", value);
+
+    
+    if (arg) StackPush (self, *arg);  
+    else
+    {
+        StackPush (self, value);
+    }
+
+    (*ip) += MULTI_BYTE_OFFSET;
 })
+
+
+DEF_CMD(POP, 6,
+{
+    int value = 0;
+    int* arg = GetArg (*code, code, CpuInfo, &value);
+    
+    printf ("Arg %d", *arg);
+
+    if (arg) *arg = StackPop (self);  
+    else
+    {
+        printf ("SIGIL\n");
+    }
+
+    printf ("Popping.\n");
+
+    (*ip) += MULTI_BYTE_OFFSET;
+
+})
+
 
 DEF_CMD(MLT, 2,
 {
@@ -31,12 +62,7 @@ DEF_CMD(DIV, 5,
     StackPush (self, StackPop(self) / StackPop(self));
 })
 
-DEF_CMD(POP, 6,
-{
-    ProcessPop (self, code, *ip, Stream);
-    printf ("Popping.\n");
-    (*ip) += INT_OFFSET;
-})
+
 
 DEF_CMD(OUT, 7, 
 {
@@ -61,7 +87,7 @@ DEF_CMD(JB, 10,
     }
     else
     {
-        *ip += BIG_OFFSET;   
+        *ip += MULTI_BYTE_OFFSET;   
     }
 })
 
@@ -74,7 +100,7 @@ DEF_CMD(JBE, 11,
     }
     else
     {
-        *ip += BIG_OFFSET;   
+        *ip += MULTI_BYTE_OFFSET;   
     }
 })
 
@@ -87,7 +113,7 @@ DEF_CMD(JA, 12,
     }
     else
     {
-        *ip += BIG_OFFSET;
+        *ip += MULTI_BYTE_OFFSET;
     }
 })
 
@@ -100,7 +126,7 @@ DEF_CMD(JAE, 13,
         }
         else
         {
-            *ip += BIG_OFFSET;
+            *ip += MULTI_BYTE_OFFSET;
         }  
 })
 
@@ -113,7 +139,7 @@ DEF_CMD(JE, 14,
     }
     else
     {
-        *ip += BIG_OFFSET;
+        *ip += MULTI_BYTE_OFFSET;
     }   
 })
 
@@ -126,7 +152,7 @@ DEF_CMD(JNE, 15,
     }
     else
     {
-        *ip += BIG_OFFSET;
+        *ip += MULTI_BYTE_OFFSET;
     } 
 })
 

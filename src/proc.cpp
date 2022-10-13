@@ -8,16 +8,16 @@ void StartProc ()
     fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
 
     // ??
-    Processor Stream = {};
-    ProcCtor (&Stream);
+    Processor CpuInfo = {};
+    ProcCtor (&CpuInfo);
 
-    ParseBinFile (&Stream, buffer); 
-    if (Stream.version != PROC_VERSION) printf ("Wrong bin file!");
-    Execute (&Stream);
+    ParseBinFile (&CpuInfo, buffer); 
+    if (CpuInfo.version != PROC_VERSION) printf ("Wrong bin file!");
+    Execute (&CpuInfo);
 
     FREE(buffer);
     fclose (CmdFile);
-    ProcDtor (&Stream);
+    ProcDtor (&CpuInfo);
 }
 
 
@@ -34,27 +34,26 @@ void ParseBinFile (Processor* self, char* code)
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
             code[VERSION_INDX], code[CMD_AMT_INDX]);
 
-    self->cmds = code; // Служебная информация хз как перевести
-    
+    self->cmds = code; 
 }
 
 
-void Execute (Processor* Stream)
+void Execute (Processor* CpuInfo)
 {
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
 
-    for (int ip = WORK_DATA_LEN; ip < Stream->cmds_amount; ip++)
+    for (int ip = WORK_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
     {
         printf ("Ip %3d: ", ip);
-        ProcessCommand (&MainStack, Stream->cmds + ip, &ip, Stream);
+        ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
     }
 
     StackDtor (&MainStack);
 }
 
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
+void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 {
 
     // printf ("----Currently working on %d-----\n", *code & CMD_BITMASK);
@@ -79,39 +78,38 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
 }
 
 
-void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
-{
-    int* arg = GetArg (*code, code, Stream);
-
-    // printf ("We got arg: %d\n", *arg);
-
-    StackPush (self, *arg);    
-}
-
-// handle
-void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
-{
-    int* arg = GetArg (*code, code, Stream);
-
-    // printf ("We got arg: %d\n", *arg);
-
-    *arg = StackPop (self);  
-}
-
-
-int* GetArg (int cmd, const char* code, Processor* Stream)
+int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val)          
 {
     // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
 
-    int* arg = nullptr;
+    printf ("Lets get some args!\n");
+    printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
+
+    int* arg_ptr = 0;
+    int  reg_indx = code[sizeof(int) + BYTE_OFFSET];
+
+    printf ("Reg indx %d\n", reg_indx);
+
+    if (cmd & ARG_IMMED) *val = *(int*)(code + 1);
     
-    if (cmd & ARG_IMMED) arg = (int*)(code + 1);
-    if (cmd & ARG_REG)   arg = Stream->Regs + *(int*)(code + 1); 
-    if (cmd & ARG_MEM)   arg = Stream->Ram + *arg;
+    if ((cmd & ARG_REG) && (cmd & ARG_IMMED))
+    {
+        *val += CpuInfo->Regs[reg_indx]; 
 
-    // printf ("arg or ind %d\n", *(int*)(code + 1));
+    }
 
-    return arg;
+    if ((cmd & ARG_REG) && !(cmd & ARG_IMMED))
+    {
+        printf ("Working with register value \n");
+        arg_ptr = CpuInfo->Regs + reg_indx; 
+        *val    = CpuInfo->Regs[reg_indx];
+    }
+
+    if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + *val;
+
+    printf ("arg ptr %p\n", arg_ptr);
+
+    return arg_ptr;
 }
 
 

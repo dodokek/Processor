@@ -9,7 +9,7 @@
 enum LEN
 {
     PUSH_LEN = 4,
-    POP_LEN = 4,
+    POP_LEN = 3,
     JMP_LEN = 3,
     JMP_LEN_SHORT = 2,
     WORK_DATA_LEN = 5,
@@ -19,9 +19,10 @@ enum LEN
 enum OFSSETS
 {
     INT_OFFSET = 4,
-    BIG_OFFSET = 5,
+    MULTI_BYTE_OFFSET = 5,
+    BYTE_OFFSET = 1,
     DEFAULT_CMD_OFFSET = 1,
-    DEFAULT_TWO_CMD_OFFSET = 5,
+    DEFAULT_TWO_CMD_OFFSET = 6,
     JMP_OFFSET = 6,
     ZERO_OFFSET = 0,
 };
@@ -49,8 +50,8 @@ struct Label
 struct Assembler
 {
     char* commands;
-    int bin_size;  // ??
-    Label* labels; // label
+    int cur_len; 
+    Label* labels; 
     int labels_amount;
 };
 
@@ -94,9 +95,13 @@ enum BitMasks
     ARG_MEM   = 0b10000000,
 };
 
+#define _TO_STR(X) #X
+#define TO_STR(X) _TO_STR(X)
+
+
 void RawToBin (Text RawCmd, FILE* CmdFile);
 
-int LineToCommands (char* line, Assembler* Stream);
+int LineToCommands (char* line, Assembler* AsmInfo);
 
 int GetCmdNum (char* cmd);
 
@@ -104,29 +109,29 @@ void StartAsm();
 
 void IntToChar (char* arr, const int* num);
 
-int ParseCmd (Assembler* Stream, char* cur_cmd_line, int operation);
+int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation);
 
 int GetRegNum (char* reg);
 
 void ProcessPush (Stack* self, int arr);
 
-int ParseJmp (Assembler* Stream, char* cur_cmd_line, int jmp_type);
+int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type);
 
 bool HandleRam (char* cmd_line);
 
-int ParseLabel (Assembler* Stream,char* line);
+int ParseLabel (Assembler* AsmInfo,char* line);
 
-int IsJmp (Assembler* Stream, char* line);
+int IsJmp (Assembler* AsmInfo, char* line);
 
-void FillMissingLabels (Assembler* Stream);
+void FillMissingLabels (Assembler* AsmInfo);
 
-void FillWorkData (Assembler* Stream);
+void FillWorkData (Assembler* AsmInfo);
 
-void StreamCtor (Assembler* Stream, Text* RawCmd);
+void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd);
 
-void StreamDtor (Assembler* Stream);
+void AsmInfoDtor (Assembler* AsmInfo);
 
-int FindLabel (Assembler* Stream, int label_hash);
+int FindLabel (Assembler* AsmInfo, int label_hash);
 
 int HashLabel (char* label);
 
