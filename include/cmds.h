@@ -1,7 +1,7 @@
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
-    exit(0);
+    
 })
 
 DEF_CMD(PUSH, 1,

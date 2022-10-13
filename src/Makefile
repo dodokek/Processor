@@ -12,12 +12,13 @@ FILE = fileUtils
 MAIN = main
 PROC = proc
 MMAKE = mymake
+DISAS = disasm
 
 #Body
 
 all : $(MAIN)
 
-$(MAIN)     : $(MMAKE).o $(PROC).o  $(ASM).o $(STACK).o $(STR).o $(FILE).o  
+$(MAIN)     : $(MMAKE).o $(PROC).o  $(ASM).o $(STACK).o $(STR).o $(FILE).o  $(DISAS).o
 	$(CC) $(CFLAGS) $^ -o $@   
 
 $(ASM).o   : $(ASM).cpp
@@ -38,5 +39,7 @@ $(PROC).o : $(PROC).cpp
 $(MMAKE).o : $(MMAKE).cpp
 	$(CC) $(CFLAGS) $< -c
 
+$(DISAS).o : $(DISAS).cpp
+	$(CC) $(CFLAGS) $< -c
 clean:
 	rm -rf *.o *.save $(MAIN)

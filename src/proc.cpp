@@ -4,10 +4,9 @@
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); // ??
+    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); 
     fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
 
-    // ??
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
 

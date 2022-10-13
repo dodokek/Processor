@@ -85,14 +85,13 @@ int LineToCommands (char* line, Assembler* AsmInfo)
     }
     else if (strncmp ("POP", line, POP_LEN) == 0)
     {
-        printf ("Need to parse pop\n");
         return ParseCmd (AsmInfo, line + POP_LEN + 1, POP);
     }
     else if (strncmp ("JMP", line, JMP_LEN) == 0)
     {
         return ParseJmp (AsmInfo, line + JMP_LEN, JMP);
     }
-    else if (line[0] == 'J')
+    else if (strncmp ("J", line, J_LEN) == 0)
     {
         return IsJmp (AsmInfo, line);
     }

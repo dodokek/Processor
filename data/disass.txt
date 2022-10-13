@@ -1,0 +1,3 @@
+bebraPUSH 2 0
+PUSH 500 0
+PUSH 0 0

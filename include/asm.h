@@ -11,6 +11,7 @@ enum LEN
     PUSH_LEN = 4,
     POP_LEN = 3,
     JMP_LEN = 3,
+    J_LEN = 1,
     JMP_LEN_SHORT = 2,
     WORK_DATA_LEN = 5,
 };
