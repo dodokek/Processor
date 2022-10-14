@@ -136,8 +136,8 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 {
     assert (self != nullptr && filename != nullptr && funcname != nullptr);
 
-    /*Verificate (self);
     PutDividers();
+    /*Verificate (self);
 
     printf ("At file: %s\n", filename);
 
@@ -154,8 +154,8 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     )
     */
 
-    printf ("%cSize: %d\n", 204, self->size);
-    printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
+    printf ("Size: %d\n", self->size);
+    printf ("Capacity: %d\nData array:\n", self->capacity);
 
     if (self->stack_info.data_corrupted) 
         printf ("\n************Stack was corrupted, stop cringe.************\n\n");

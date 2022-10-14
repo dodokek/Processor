@@ -82,6 +82,7 @@ int LineToCommands (char* line, Assembler* AsmInfo)
         if (strncmp (#name, line, len) == 0) {return code;}   \
         else
 
+
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
         return ParseCmd (AsmInfo, line + PUSH_LEN + 1, PUSH);
@@ -217,7 +218,6 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
     else
     { 
         *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = -1;
-        // AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET]  = 1;
     }
 
     AsmInfo->commands[AsmInfo->cur_len] = jmp_type;

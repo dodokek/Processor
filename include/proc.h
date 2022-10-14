@@ -21,7 +21,7 @@ enum ProcInfo
 
 struct Processor
 {
-    int version; // ???
+    int version;
 
     int cmds_amount; 
     const char* cmds;

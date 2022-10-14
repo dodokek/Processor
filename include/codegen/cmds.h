@@ -43,7 +43,8 @@ DEF_CMD(POP, 6,
 
 DEF_CMD(MLT, 2,
 {
-    StackPush (self, StackPop (self) + StackPop (self));
+    StackPush (self, StackPop (self) * StackPop (self));
+    printf ("Multiplying\n");
 })
 
 DEF_CMD(ADD, 3,
@@ -72,12 +73,30 @@ DEF_CMD(OUT, 7,
 
 DEF_CMD(DMP, 8, 
 {
+    printf ("\n ----- BEG OF DUMP ------ \n");
+
     StackDump(self);
-    
+
     for (int i = 0; i < REG_AMOUNT; i++)
     {
         printf ("Register %d: %d\n", i, CpuInfo->Regs[i]);
     }
+
+    printf ("Commands: \n");
+
+    for (int i = 0; i < CpuInfo->cmds_amount; i++)
+    {
+        printf ("%2x ", CpuInfo->cmds[i]);
+    }
+
+    printf ("\n");
+
+    for (int i = 0; i < CpuInfo->cmds_amount; i++)
+    {
+        printf ("%2c ", (i == CpuInfo->cmds_amount - 1) ? '^' : '~');
+    }
+
+    printf ("\n\n ----- END OF DUMP ------ \n\n");
 })
 
 DEF_CMD(JMP, 9, 
@@ -164,6 +183,14 @@ DEF_CMD(JNE, 15,
     } 
 })
 
-DEF_CMD(IN, 16, {})
+DEF_CMD(IN, 16, 
+{
+    int tmp_num;
+
+    printf ("Enter the number: \n");
+    scanf ("%d", &tmp_num);
+
+    StackPush (self, tmp_num);
+})
 
 

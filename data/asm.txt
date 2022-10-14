@@ -1,12 +1,9 @@
-beb:
-
-PUSH rax + 1
-POP rax
-
-PUSH rax
 PUSH 10
-JAE beb
-
-PUSH rax
+bebra:
+PUSH 500
+PUSH 1
+PUSH 2
+JBA bebra
+DMP
 OUT
 HTL

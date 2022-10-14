@@ -54,10 +54,6 @@ void Execute (Processor* CpuInfo)
 
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 {
-
-    // printf ("----Currently working on %d-----\n", *code & CMD_BITMASK);
-    // printf ("Ip %4d: ", *ip);
-
     #define DEF_CMD(name, len, code) \
         case name:                   \
             code                     \
