@@ -8,6 +8,6 @@ int main ()
 
     StartProc();
 
-    StartDisasm();
+    //StartDisasm();
 
 }

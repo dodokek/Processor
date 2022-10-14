@@ -43,7 +43,6 @@ struct Label
 {
     char* name;
     int label_pos; 
-    int hash;
 };
 
 
@@ -108,8 +107,6 @@ int GetCmdNum (char* cmd);
 
 void StartAsm();
 
-void IntToChar (char* arr, const int* num);
-
 int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation);
 
 int GetRegNum (char* reg);
@@ -132,8 +129,12 @@ void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd);
 
 void AsmInfoDtor (Assembler* AsmInfo);
 
-int FindLabel (Assembler* AsmInfo, int label_hash);
+int FindLabel (Assembler* AsmInfo, char* label_name);
 
-int HashLabel (char* label);
+void HandleEachLine (Text* RawCmd, Assembler* AsmInfo);
+
+void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo);
+
+int IsLabel (char* line, Assembler* AsmInfo);
 
 #endif

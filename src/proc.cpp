@@ -81,13 +81,13 @@ int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val)
 {
     // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
 
-    printf ("Lets get some args!\n");
-    printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
+    // printf ("Lets get some args!\n");
+    // printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
 
     int* arg_ptr = 0;
     int  reg_indx = code[sizeof(int) + BYTE_OFFSET];
 
-    printf ("Reg indx %d\n", reg_indx);
+    // printf ("Reg indx %d\n", reg_indx);
 
     if (cmd & ARG_IMMED) *val = *(int*)(code + 1);
     
@@ -99,14 +99,14 @@ int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val)
 
     if ((cmd & ARG_REG) && !(cmd & ARG_IMMED))
     {
-        printf ("Working with register value \n");
+        // printf ("Working with register value \n");
         arg_ptr = CpuInfo->Regs + reg_indx; 
         *val    = CpuInfo->Regs[reg_indx];
     }
 
     if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + *val;
 
-    printf ("arg ptr %p\n", arg_ptr);
+    // printf ("arg ptr %p\n", arg_ptr);
 
     return arg_ptr;
 }

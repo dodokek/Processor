@@ -26,7 +26,7 @@ DEF_CMD(POP, 6,
     int value = 0;
     int* arg = GetArg (*code, code, CpuInfo, &value);
     
-    printf ("Arg %d", *arg);
+    printf ("Arg %d \n", *arg);
 
     if (arg) *arg = StackPop (self);  
     else

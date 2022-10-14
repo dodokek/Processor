@@ -23,33 +23,45 @@ void StartAsm()
 
 void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    // AsmInfo ?
-    // 
-
     Assembler AsmInfo = {};
     AsmInfoCtor (&AsmInfo, &RawCmd);
 
     // Processing every line
 
-    for (int line_ctr = 0; line_ctr < RawCmd.lines_amount; line_ctr++)
-    {
-        AsmInfo.cur_len += LineToCommands (RawCmd.lines_array[line_ctr].begin_ptr, &AsmInfo);
-    }
+    HandleEachLine (&RawCmd, &AsmInfo);
+
+    // Second lap to fill labels
+
+    PrepareForSecondLap (&RawCmd, &AsmInfo);
+
+    HandleEachLine (&RawCmd, &AsmInfo);
 
     //Filling stuff info
 
     FillWorkData (&AsmInfo);
-
-    //Second lap to fill labels
-
-    FillMissingLabels (&AsmInfo);
-
+    
     // Destructors
 
     fwrite (AsmInfo.commands, sizeof (int), AsmInfo.cur_len, CmdFile);
     
     AsmInfoDtor (&AsmInfo);
 }
+
+
+void HandleEachLine (Text* RawCmd, Assembler* AsmInfo)
+{
+    for (int line_ctr = 0; line_ctr < RawCmd->lines_amount; line_ctr++)
+    {
+        AsmInfo->cur_len += LineToCommands (RawCmd->lines_array[line_ctr].begin_ptr, AsmInfo);
+    }    
+}
+
+
+void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo)
+{
+    AsmInfo->cur_len = WORK_DATA_LEN;
+    memset (AsmInfo->commands, 0, RawCmd->lines_amount * 2);
+} 
 
 
 void FillWorkData (Assembler* AsmInfo)
@@ -66,19 +78,9 @@ int LineToCommands (char* line, Assembler* AsmInfo)
 {
     printf ("Ip %d: ", AsmInfo->cur_len);
     
-    int last_char_indx = 0;
-    char tmp_line[MAX_CMD_LEN] = "";
-    sscanf (line, "%s%n", tmp_line, &last_char_indx);
+    if (IsLabel (line, AsmInfo)) return ZERO_OFFSET;
+    
 
-    if (line[last_char_indx - 1] == ':') 
-    {
-        line[last_char_indx - 1] = '\0';
-
-        return ParseLabel (AsmInfo, line);   
-    }
-
-
-    // Cringe
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
         return ParseCmd (AsmInfo, line + PUSH_LEN + 1, PUSH);
@@ -101,6 +103,25 @@ int LineToCommands (char* line, Assembler* AsmInfo)
         return DEFAULT_CMD_OFFSET;
     }
 }
+
+
+int IsLabel (char* line, Assembler* AsmInfo)
+{
+    int last_char_indx = 0;
+    char tmp_line[MAX_CMD_LEN] = "";
+    sscanf (line, "%s%n", tmp_line, &last_char_indx);
+
+    if (line[last_char_indx - 1] == ':') 
+    {
+        line[last_char_indx - 1] = '\0';
+
+        ParseLabel (AsmInfo, line);  
+
+        return 1; 
+    }
+
+    return 0;
+} 
 
 
 int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
@@ -177,23 +198,17 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
     sscanf (cur_cmd_line, "%s", label_name);
 
     printf (" Working with label %s\n", label_name);
-    int label_indx = FindLabel (AsmInfo, HashLabel(label_name));
-
+    int label_indx = FindLabel (AsmInfo, label_name);
 
     if (label_indx != -1) 
     {
         *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = AsmInfo->labels[label_indx].label_pos;
+        printf ("-----We have jumping position %d --------\n", AsmInfo->labels[label_indx].label_pos);
     }
     else
     { 
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = HashLabel (label_name);
-        AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET]  = 1;
-
-        printf ("SOMETHING WRONG, filling byte %d in pos %d\n",
-                AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET],
-                AsmInfo->cur_len + MULTI_BYTE_OFFSET);
-
-        printf ("Leaving hash func %d\n", *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1));
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = -1;
+        // AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET]  = 1;
     }
 
     AsmInfo->commands[AsmInfo->cur_len] = jmp_type;
@@ -202,12 +217,11 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
 }
 
 
-int FindLabel (Assembler* AsmInfo, int label_hash)
-{
-    
+int FindLabel (Assembler* AsmInfo, char* label_name)
+{ 
     for (int i = 0; i < AsmInfo->labels_amount; i++)
     {
-        if (label_hash == AsmInfo->labels[i].hash) 
+        if (strcmp(label_name, AsmInfo->labels[i].name) == 0) 
         {
             return i;
         }
@@ -220,13 +234,14 @@ int ParseLabel (Assembler* AsmInfo, char* line)
 {
     printf ("Analysing label %s\n", line);
 
+    for (int i = 0; i< AsmInfo->labels_amount; i++)
+    {
+        if (strcmp (line, AsmInfo->labels[i].name) == 0) return ZERO_OFFSET;
+    }
+
     AsmInfo->labels[AsmInfo->labels_amount].name = line;
 
     AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
-
-    AsmInfo->labels[AsmInfo->labels_amount].hash = HashLabel (line);
-
-    printf ("----\nCur Label has pos: %d\n And hash %d\n----\n", AsmInfo->labels[AsmInfo->labels_amount].label_pos, AsmInfo->labels[AsmInfo->labels_amount].hash);
 
     AsmInfo->labels_amount++;
 
@@ -255,42 +270,10 @@ bool HandleRam (char* cmd_line)
 }
 
 
-void FillMissingLabels (Assembler* AsmInfo)
-{
-    // jmp_type
-    for (int i = WORK_DATA_LEN; i < AsmInfo->cur_len; i++)
-    {
-        #define DEF_JMP(type, len)                                                  \
-            if (AsmInfo->commands[i] == type)                                        \
-            {                                                                       \
-                printf ("Got unfilled jump %d NOW CHECKING BYTE %d\n", type, AsmInfo->commands[i + JMP_OFFSET]);   \
-                if (AsmInfo->commands[i + JMP_OFFSET] == 0) continue;                \
-            } else                                                   
-
-        //-----
-        #include "../include/jumps.h"
-        {continue;}
-        //-----
-
-        #undef DEF_JMP      
-
-        printf ("NEED TO FILL JUMP in %d\n", i);
-        printf ("Got command %d\\n", AsmInfo->commands[i]);
-
-        int* hashed_label = (int*)(AsmInfo->commands + i + 1);
-        printf ("Need to replace hash %d\n", *hashed_label);
-        int  label_indx   = FindLabel (AsmInfo, *hashed_label);
-        printf ("Replacing with %d", AsmInfo->labels[label_indx].label_pos);
-            *hashed_label = AsmInfo->labels[label_indx].label_pos; 
-    }
-}
-
-
 void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd)
 {
     AsmInfo->commands = (char*)  calloc (sizeof (int), RawCmd->lines_amount * 2);
     AsmInfo->labels =   (Label*) calloc (sizeof(Label), MAX_LABELS);
-    // ??
 
     AsmInfo->cur_len = WORK_DATA_LEN;
     AsmInfo->labels_amount = 0;
@@ -303,22 +286,6 @@ void AsmInfoDtor (Assembler* AsmInfo)
     FREE(AsmInfo->labels);
 
     AsmInfo->cur_len = 0;
-}
-
-
-// ?
-void IntToChar (char* arr, const int* num)
-{
-    char* ptr = (char*) num;
-
-    // *(int*)arr = num; 
-    
-    for (size_t i = 0; i < sizeof (int); i++)
-    {
-        arr[i] = *ptr;
-        // printf ("Cur value: %d", arr[i]);
-        ptr++; 
-    }
 }
 
 
@@ -348,21 +315,4 @@ int GetCmdNum (char* cmd)
     //------
 
     #undef DEF_CMD
-}
-
-
-int HashLabel (char* label)
-{
-    int h = 0xFACFAC;
-
-    printf ("Recieved label: %s\n", label);
-
-    while (*label != '\0')
-    {
-        h = ((h + (*label)) * SALT) % (HASH_MOD);
-        label++;
-    }
-    printf ("Got hash %d\n", h);
-
-    return h;
 }
