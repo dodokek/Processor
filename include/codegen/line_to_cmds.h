@@ -7,7 +7,7 @@ DEF_LINE("POP", POP_LEN,
 )
 
 DEF_LINE("JMP", JMP_LEN, 
-    ParseCmd (AsmInfo, line + JMP_LEN + 1, JMP)
+    ParseJmp (AsmInfo, line + JMP_LEN, JMP)
 )
 
 DEF_LINE("J", J_LEN, 

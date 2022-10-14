@@ -63,10 +63,10 @@ void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo)
 void FillWorkData (Assembler* AsmInfo)
 {
     AsmInfo->commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
-    AsmInfo->commands[CMD_AMT_INDX] = AsmInfo->cur_len;
     AsmInfo->commands[SG_INDX1] = 'C';
     AsmInfo->commands[SG_INDX2] = 'U';
     AsmInfo->commands[SG_INDX3] = 'M';
+    *(int*)(AsmInfo->commands +CMD_AMT_INDX) = AsmInfo->cur_len;
 }
 
 
@@ -78,7 +78,7 @@ int LineToCommands (char* line, Assembler* AsmInfo)
 
     // Generating command cases
 
-    #define DEF_LINE(name, len, ...)                         \
+    #define DEF_LINE(name, len, ...)                                 \
         if (strncmp (name, line, len) == 0) {return __VA_ARGS__ ;}   \
         else
 
@@ -121,46 +121,53 @@ int IsLabel (char* line, Assembler* AsmInfo)
 int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
 {
     printf ("Started to parse %s\n", cur_cmd_line);
-    AsmInfo->commands[AsmInfo->cur_len] = operation;
+    char* cmd_num = AsmInfo->commands + AsmInfo->cur_len;
 
-    if (HandleRam (cur_cmd_line))
+    *cmd_num = operation;
+
+    char cmd_line_copy[MAX_CMD_LEN] = "";
+    strcpy (cmd_line_copy, cur_cmd_line);
+
+
+    if (HandleRam (cmd_line_copy))
     {
-        AsmInfo->commands[AsmInfo->cur_len] |= ARG_MEM;
-        cur_cmd_line++;                 // skipping '[' symbol
+        // printf ("handling ram\n");
+        *cmd_num |= ARG_MEM;
     }
 
     int  tmp_imm = 0; 
     char tmp_reg[MAX_CMD_LEN] = "";
 
-    if  (sscanf (cur_cmd_line, "%d + %s",  &tmp_imm,  tmp_reg)   == 2 || 
-         sscanf (cur_cmd_line, " %[^+] + %d", tmp_reg, &tmp_imm  ) == 2) 
+    if  (sscanf (cmd_line_copy, "%d + %s",  &tmp_imm,  tmp_reg)   == 2 || 
+         sscanf (cmd_line_copy, " %[^+] + %d", tmp_reg, &tmp_imm  ) == 2) 
     {
         printf ("Oh, we got + sign \n");
         
-        AsmInfo->commands[AsmInfo->cur_len] |= ARG_IMMED;
-        AsmInfo->commands[AsmInfo->cur_len] |= ARG_REG;
+        *cmd_num |= ARG_IMMED;
+        *cmd_num |= ARG_REG;
         
         int reg_number = GetRegNum (tmp_reg);
         printf ("Register %d\n", reg_number);
 
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1)  = tmp_imm;
-                AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET] = reg_number;
+        *(elem_t*)(AsmInfo->commands + AsmInfo->cur_len + 1)  = tmp_imm;
+                   AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET] = reg_number;
     }
 
-    else if (sscanf (cur_cmd_line, "%d", &tmp_imm))
+    else if (sscanf (cmd_line_copy, "%d", &tmp_imm))
     {
-        AsmInfo->commands[AsmInfo->cur_len] |= ARG_IMMED;
+        *cmd_num |= ARG_IMMED;
         
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = tmp_imm;
+        *(elem_t*)(AsmInfo->commands + AsmInfo->cur_len + 1) = tmp_imm;
     }
     
     else    
     {
-        AsmInfo->commands[AsmInfo->cur_len] |= ARG_REG;
+        *cmd_num |= ARG_REG;
 
-        int reg_number = GetRegNum (cur_cmd_line);
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + MULTI_BYTE_OFFSET) = reg_number;
+        int reg_number = GetRegNum (cmd_line_copy);
+        AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET] = reg_number;
     }
+
 
     return DEFAULT_TWO_CMD_OFFSET;
 }
@@ -197,12 +204,11 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
 
     if (label_indx != -1) 
     {
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = AsmInfo->labels[label_indx].label_pos;
-        printf ("-----We have jumping position %d --------\n", AsmInfo->labels[label_indx].label_pos);
+        *(elem_t*)(AsmInfo->commands + AsmInfo->cur_len + 1) = AsmInfo->labels[label_indx].label_pos;
     }
     else
     { 
-        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = -1;
+        *(elem_t*)(AsmInfo->commands + AsmInfo->cur_len + 1) = -1;
     }
 
     AsmInfo->commands[AsmInfo->cur_len] = jmp_type;
@@ -266,7 +272,7 @@ bool HandleRam (char* cmd_line)
 
 void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd)
 {
-    AsmInfo->commands = (char*)  calloc (sizeof (int), RawCmd->lines_amount * 2);
+    AsmInfo->commands = (char*)  calloc (sizeof (elem_t), RawCmd->lines_amount * 2);
     AsmInfo->labels =   (Label*) calloc (sizeof(Label), MAX_LABELS);
 
     AsmInfo->cur_len = WORK_DATA_LEN;
@@ -285,7 +291,6 @@ void AsmInfoDtor (Assembler* AsmInfo)
 
 int GetRegNum (char* reg)
 {
-    // 
     printf("recieved chars %c and %c\n", reg[0], reg[2]);
     if (reg[0] == 'r' && reg[2] == 'x')
     {
@@ -298,7 +303,6 @@ int GetRegNum (char* reg)
 
 int GetCmdNum (char* cmd)
 {
-    // ?
     #define DEF_CMD(name, num, code) \
     if (strcmp (cmd, #name) == 0) return num; \
     else

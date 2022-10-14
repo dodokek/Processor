@@ -1,16 +1,19 @@
+#define LABLE_POS int(*(elem_t*)(code + 1) - 1)
+
+
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
     
 })
 
+
 DEF_CMD(PUSH, 1,
 {
-    int value = 0;
-    int* arg = GetArg (*code, code, CpuInfo, &value);
+    elem_t value = 0;
+    elem_t* arg = GetArg (*code, code, CpuInfo, &value);
     // printf ("Got value %d", value);
 
-    
     if (arg) StackPush (self, *arg);  
     else
     {
@@ -23,10 +26,10 @@ DEF_CMD(PUSH, 1,
 
 DEF_CMD(POP, 6,
 {
-    int value = 0;
-    int* arg = GetArg (*code, code, CpuInfo, &value);
+    elem_t value = 0;
+    elem_t* arg = GetArg (*code, code, CpuInfo, &value);
     
-    printf ("Arg %d \n", *arg);
+    printf ("Arg %lg \n", *arg);
 
     if (arg) *arg = StackPop (self);  
     else
@@ -68,7 +71,7 @@ DEF_CMD(DIV, 5,
 DEF_CMD(OUT, 7, 
 {
     // StackDump (self);
-    printf ("Stack out: %d\n", StackPop (self));
+    printf ("Stack out: %lg\n", StackPop (self));
 })
 
 DEF_CMD(DMP, 8, 
@@ -79,21 +82,21 @@ DEF_CMD(DMP, 8,
 
     for (int i = 0; i < REG_AMOUNT; i++)
     {
-        printf ("Register %d: %d\n", i, CpuInfo->Regs[i]);
+        printf ("Register %d: %lg\n", i, CpuInfo->Regs[i]);
     }
 
     printf ("Commands: \n");
 
-    for (int i = 0; i < CpuInfo->cmds_amount; i++)
+    for (int i = 0; i < *ip; i++)
     {
         printf ("%2x ", CpuInfo->cmds[i]);
     }
 
     printf ("\n");
 
-    for (int i = 0; i < CpuInfo->cmds_amount; i++)
+    for (int i = 0; i < *ip; i++)
     {
-        printf ("%2c ", (i == CpuInfo->cmds_amount - 1) ? '^' : '~');
+        printf ("%2c ", (i == *ip - 1) ? '^' : '~');
     }
 
     printf ("\n\n ----- END OF DUMP ------ \n\n");
@@ -101,7 +104,7 @@ DEF_CMD(DMP, 8,
 
 DEF_CMD(JMP, 9, 
 {
-    *ip = *(int*)(code + 1) - 1;
+    *ip = LABLE_POS;
     printf ("Jumping to %d\n", *ip);
 })
 
@@ -109,7 +112,7 @@ DEF_CMD(JB, 10,
 {
     if (StackPop(self) < StackPop(self))
     {
-        *ip = *(int*)(code + 1) - 1;
+        *ip = LABLE_POS;
         printf ("Jumping to %d\n", *ip);
     }
     else
@@ -122,7 +125,7 @@ DEF_CMD(JBE, 11,
 {
     if (StackPop(self) <= StackPop(self))
     {
-        *ip = *(int*)(code + 1) - 1;
+        *ip = LABLE_POS;
         printf ("Jumping to %d\n", *ip);
     }
     else
@@ -135,7 +138,7 @@ DEF_CMD(JA, 12,
 {
     if (StackPop(self) > StackPop(self))
     {
-        *ip = *(int*)(code + 1) - 1;
+        *ip = LABLE_POS;
         printf ("Jumping to %d\n", *ip);
     }
     else
@@ -148,7 +151,7 @@ DEF_CMD(JAE, 13,
 {
     if (StackPop(self) >= StackPop(self))
         {
-            *ip = *(int*)(code + 1) - 1;
+            *ip = LABLE_POS;
             printf ("Jumping to %d\n", *ip);
         }
         else
@@ -161,7 +164,7 @@ DEF_CMD(JE, 14,
 {
     if (StackPop(self) == StackPop(self))
     {
-        *ip = *(int*)(code + 1) - 1;
+        *ip = LABLE_POS;
         printf ("Jumping to %d\n", *ip);
     }
     else
@@ -172,9 +175,9 @@ DEF_CMD(JE, 14,
 
 DEF_CMD(JNE, 15, 
 {
-     if (StackPop(self) != StackPop(self))
+    if (StackPop(self) != StackPop(self))
     {
-        *ip = *(int*)(code + 1) - 1;
+        *ip = LABLE_POS;
         printf ("Jumping to %d\n", *ip);
     }
     else

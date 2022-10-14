@@ -13,17 +13,17 @@ enum LEN
     JMP_LEN = 3,
     J_LEN = 1,
     JMP_LEN_SHORT = 2,
-    WORK_DATA_LEN = 5,
+    WORK_DATA_LEN = 8,
 };
 
 
 enum OFSSETS
 {
     INT_OFFSET = 4,
-    MULTI_BYTE_OFFSET = 5,
+    MULTI_BYTE_OFFSET = sizeof (elem_t) + 1,
+    DEFAULT_CMD_OFFSET = sizeof (char),
+    DEFAULT_TWO_CMD_OFFSET = sizeof (elem_t) + 2,
     BYTE_OFFSET = 1,
-    DEFAULT_CMD_OFFSET = 1,
-    DEFAULT_TWO_CMD_OFFSET = 6,
     JMP_OFFSET = 6,
     ZERO_OFFSET = 0,
 };
@@ -79,8 +79,8 @@ enum Registers
 enum ParseData
 {
     VERSION_INDX = 0,
-    CMD_AMT_INDX,
-    SG_INDX1,
+    CMD_AMT_INDX = 1,
+    SG_INDX1 = 5,
     SG_INDX2,
     SG_INDX3,
 };

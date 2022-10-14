@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-typedef int elem_t;
+typedef double elem_t;
 typedef long long int ll_i; 
 
 const int RIGHT_COCK = 0xDEADBABE;

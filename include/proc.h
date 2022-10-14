@@ -26,9 +26,9 @@ struct Processor
     int cmds_amount; 
     const char* cmds;
 
-    int Regs[4];
+    elem_t Regs[4];
 
-    int* Ram;
+    elem_t* Ram;
 };
 
 
@@ -44,6 +44,6 @@ void ProcCtor (Processor* self);
 
 void ProcDtor (Processor* self);
 
-int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val);
+elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val);
 
 #endif

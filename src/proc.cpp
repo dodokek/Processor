@@ -23,15 +23,14 @@ void StartProc ()
 void ParseBinFile (Processor* self, char* code)
 {
     self->version = code[VERSION_INDX];
-    self->cmds_amount = code[CMD_AMT_INDX];
-
+    self->cmds_amount = *(int*)(code + CMD_AMT_INDX);
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
         code[SG_INDX3] != 'M') 
         printf ("Wrong signature!\n");
 
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
-            code[VERSION_INDX], code[CMD_AMT_INDX]);
+            code[VERSION_INDX], self->cmds_amount);
 
     self->cmds = code; 
 }
@@ -63,7 +62,6 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
     {
         #include "../include/codegen/cmds.h"
 
-
         default:
             printf ("SIGILL %d\n", *code);
             break;
@@ -73,24 +71,23 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 }
 
 
-int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val)          
+elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)          
 {
     // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
 
     // printf ("Lets get some args!\n");
     // printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
 
-    int* arg_ptr = 0;
-    int  reg_indx = code[sizeof(int) + BYTE_OFFSET];
+    elem_t* arg_ptr = 0;
+    int reg_indx = code[sizeof(elem_t) + BYTE_OFFSET];
 
     // printf ("Reg indx %d\n", reg_indx);
 
-    if (cmd & ARG_IMMED) *val = *(int*)(code + 1);
+    if (cmd & ARG_IMMED) *val = *(elem_t*)(code + 1);
     
     if ((cmd & ARG_REG) && (cmd & ARG_IMMED))
     {
         *val += CpuInfo->Regs[reg_indx]; 
-
     }
 
     if ((cmd & ARG_REG) && !(cmd & ARG_IMMED))
@@ -100,7 +97,7 @@ int* GetArg (int cmd, const char* code, Processor* CpuInfo, int* val)
         *val    = CpuInfo->Regs[reg_indx];
     }
 
-    if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + *val;
+    if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + int(*val);
 
     // printf ("arg ptr %p\n", arg_ptr);
 
@@ -114,10 +111,9 @@ void ProcCtor (Processor* self)
     self->cmds_amount = 0;
     self->cmds = nullptr;
 
-    memset (self->Regs, 0, sizeof(int) * REG_AMOUNT);
+    memset (self->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
-    self->Ram = (int*) calloc (RAM_SIZE, sizeof (int));
-
+    self->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
 }
 
 
@@ -127,7 +123,7 @@ void ProcDtor (Processor* self)
     self->cmds_amount = 0;
     self->cmds = nullptr;   
 
-    memset (self->Regs, -1, sizeof(int) * REG_AMOUNT); 
+    memset (self->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
 
     FREE(self->Ram);
 }

@@ -61,7 +61,7 @@ elem_t StackPop (Stack* self)
 
 void StackPush (Stack* self, elem_t value)
 {
-    printf ("Pushing elem: %d\n", value);
+    printf ("Pushing elem: %lg\n", value);
 
     ON_DEBUG(
 
@@ -164,11 +164,11 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     {
         if (i < self->size) 
         {
-            printf ("\t*[%d]: %d\n", i, self->data[i]);         
+            printf ("\t*[%d]: %lg\n", i, self->data[i]);         
         }
         else
         {
-            printf ("\t [%d]: %x\n", i, self->data[i]);
+            printf ("\t [%d]: %lg\n", i, self->data[i]);
         }
     }
 
