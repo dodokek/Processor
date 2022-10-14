@@ -105,6 +105,30 @@ elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)
 }
 
 
+void DrawMemory (Processor* CpuInfo)
+{
+    elem_t* ram_ptr = CpuInfo->Ram;
+
+    putchar ('\n');
+
+    for (int i = 0; i < 30; i++)
+    {
+        for (int j = 0; j < 70; j++)
+        {
+            if (ram_ptr[i*10+j] == 0)
+            {
+                putchar ('.');
+            }
+            else
+            {
+                putchar ('#');
+            }
+        }
+        putchar ('\n');
+    }
+}
+
+
 void ProcCtor (Processor* self)
 {
     self->version = 0;

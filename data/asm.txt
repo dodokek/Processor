@@ -1,6 +1,0 @@
-PUSH 1
-JMP beb
-PUSH 500
-beb:
-OUT
-HTL

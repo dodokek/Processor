@@ -6,7 +6,7 @@ void StartAsm()
 {
     Text RawCmd = {};
 
-    FILE* RawCmdFile = get_file ("../data/asm.txt", "r");
+    FILE* RawCmdFile = get_file ("../data/asm.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCmd, RawCmdFile);
@@ -30,8 +30,8 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
 
     // Second lap to fill labels
 
-    PrepareForSecondLap (&RawCmd, &AsmInfo);
-    HandleEachLine (&RawCmd, &AsmInfo);
+    // PrepareForSecondLap (&RawCmd, &AsmInfo);
+    // HandleEachLine (&RawCmd, &AsmInfo);
 
     //Filling signatures and writing result in file
 
@@ -87,6 +87,7 @@ int LineToCommands (char* line, Assembler* AsmInfo)
     /*else*/
     {
         AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
+
         return DEFAULT_CMD_OFFSET;
     }
 
@@ -106,7 +107,7 @@ int IsLabel (char* line, Assembler* AsmInfo)
 
     if (line[last_char_indx - 1] == ':') 
     {
-    printf ("parsing label\n");
+        printf ("parsing label\n");
         line[last_char_indx - 1] = '\0';
 
         ParseLabel (AsmInfo, line);  
@@ -241,7 +242,7 @@ int ParseLabel (Assembler* AsmInfo, char* line)
 
     AsmInfo->labels[AsmInfo->labels_amount].name = line;
 
-    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
+    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len - 1;
 
     AsmInfo->labels_amount++;
 
@@ -258,9 +259,7 @@ bool HandleRam (char* cmd_line)
         char tmp_str[10] = ""; // '\0'
         int  cmd_len = 0;
         
-        // MAX_LEN
         sscanf (cmd_line, "%s%n", tmp_str, &cmd_len);
-        // ?
         *(cmd_line + cmd_len - 1) = ' ';
 
         return true;
@@ -307,10 +306,13 @@ int GetCmdNum (char* cmd)
     if (strcmp (cmd, #name) == 0) return num; \
     else
 
-    //------
+    //------------------
     #include "../include/codegen/cmds.h"
-    {return 0;}
-    //------
+    {
+        printf ("SIGILL\n");
+        return -1;
+    }
+    //------------------
 
     #undef DEF_CMD
 }

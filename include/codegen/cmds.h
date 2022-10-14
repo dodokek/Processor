@@ -35,9 +35,8 @@ DEF_CMD(POP, 6,
     {
         printf ("SIGIL\n");
     }
-    printf ("Arg %lg \n", *arg);
 
-    printf ("Popping.\n");
+    if (*code & ARG_MEM) DrawMemory (CpuInfo);
 
     (*ip) += MULTI_BYTE_OFFSET;
 
@@ -197,7 +196,7 @@ DEF_CMD(IN, 16,
 
 DEF_CMD(CALL, 17, 
 {
-    StackPush (&CpuInfo->CallStack, *ip + MULTI_BYTE_OFFSET);
+    StackPush (&CpuInfo->CallStack, *ip + MULTI_BYTE_OFFSET + 1);
     *ip = LABLE_POS;
     printf ("Calling ip %d\n", *ip);
 })
