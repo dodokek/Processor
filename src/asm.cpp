@@ -78,28 +78,13 @@ int LineToCommands (char* line, Assembler* AsmInfo)
 
     // Generating command cases
 
-    #define DEF_LINE(name, len, code)                         \
-        if (strncmp (#name, line, len) == 0) {return code;}   \
+    #define DEF_LINE(name, len, ...)                         \
+        if (strncmp (name, line, len) == 0) {return __VA_ARGS__ ;}   \
         else
 
+    #include "../include/codegen/line_to_cmds.h"
 
-    if (strncmp ("PUSH", line, PUSH_LEN) == 0)
-    {
-        return ParseCmd (AsmInfo, line + PUSH_LEN + 1, PUSH);
-    }
-    else if (strncmp ("POP", line, POP_LEN) == 0)
-    {
-        return ParseCmd (AsmInfo, line + POP_LEN + 1, POP);
-    }
-    else if (strncmp ("JMP", line, JMP_LEN) == 0)
-    {
-        return ParseJmp (AsmInfo, line + JMP_LEN, JMP);
-    }
-    else if (strncmp ("J", line, J_LEN) == 0)
-    {
-        return IsJmp (AsmInfo, line);
-    }
-    else
+    /*else*/
     {
         AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
         return DEFAULT_CMD_OFFSET;
@@ -108,7 +93,7 @@ int LineToCommands (char* line, Assembler* AsmInfo)
     #undef DEF_LINE
 
     //----------------------
-    
+    return 0;
 }
 
 
