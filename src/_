@@ -1,238 +1,589 @@
-# 1 "proc.cpp"
+# 1 "asm.cpp"
 # 1 "<command-line>"
-# 1 "proc.cpp"
+# 1 "asm.cpp"
 
-# 1 "../include/proc.h" 1
-# 10 "../include/proc.h"
-const int MAX_BIN_SIZE = 100;
-const int MAX_CMDS_AMOUNT = 50;
-const int PROC_VERSION = 2;
-const int REG_AMOUNT = 4;
-const int RAM_SIZE = 100;
-
-
-
-struct Processor
+# 1 "../include/asm.h" 1
+# 9 "../include/asm.h"
+enum LEN
 {
-    int version;
-    int cmds_amount;
-    const char* cmds;
+    PUSH_LEN = 4,
+    POP_LEN = 3,
+    JMP_LEN = 3,
+    J_LEN = 1,
+    JMP_LEN_SHORT = 2,
+    WORK_DATA_LEN = 5,
+};
 
-    int Regs[4];
 
-    int* Ram;
+enum OFSSETS
+{
+    INT_OFFSET = 4,
+    MULTI_BYTE_OFFSET = 5,
+    BYTE_OFFSET = 1,
+    DEFAULT_CMD_OFFSET = 1,
+    DEFAULT_TWO_CMD_OFFSET = 6,
+    JMP_OFFSET = 6,
+    ZERO_OFFSET = 0,
+};
+
+
+enum SIZES
+{
+    VERSION = 2,
+    MAX_LABELS = 10,
+    FILL_LABEL_FLAG = -1,
+    MAX_CMD_LEN = 20,
+};
+
+
+
+struct Label
+{
+    char* name;
+    int label_pos;
+};
+
+
+
+struct Assembler
+{
+    char* commands;
+    int cur_len;
+    Label* labels;
+    int labels_amount;
+};
+
+
+enum Commands
+{
+
+
+
+# 1 "../include/codegen/cmds.h" 1
+HLT = 0,
+
+
+
+
+
+PUSH = 1,
+# 24 "../include/codegen/cmds.h"
+POP = 6,
+# 44 "../include/codegen/cmds.h"
+MLT = 2,
+
+
+
+
+ADD = 3,
+
+
+
+
+
+SUB = 4,
+
+
+
+
+DIV = 5,
+
+
+
+
+
+
+OUT = 7,
+
+
+
+
+
+DMP = 8,
+
+JMP = 9,
+
+
+
+
+
+JB = 10,
+# 94 "../include/codegen/cmds.h"
+JBE = 11,
+# 107 "../include/codegen/cmds.h"
+JA = 12,
+# 120 "../include/codegen/cmds.h"
+JAE = 13,
+# 133 "../include/codegen/cmds.h"
+JE = 14,
+# 146 "../include/codegen/cmds.h"
+JNE = 15,
+# 159 "../include/codegen/cmds.h"
+IN = 16,
+# 65 "../include/asm.h" 2
+
+
+};
+
+
+enum Registers
+{
+    RAX = 0,
+    RBX,
+    RCX,
+    RDX
+};
+
+
+enum ParseData
+{
+    VERSION_INDX = 0,
+    CMD_AMT_INDX,
+    SG_INDX1,
+    SG_INDX2,
+    SG_INDX3,
+};
+
+
+enum BitMasks
+{
+    CMD_BITMASK = 0b00011111,
+    SPEC_BITMASK = 0b11100000,
+    ARG_IMMED = 0b00100000,
+    ARG_REG = 0b01000000,
+    ARG_MEM = 0b10000000,
 };
 
 
 
 
-void StartProc ();
 
-void ParseBinFile (Processor* self, char* code);
+void RawToBin (Text RawCmd, FILE* CmdFile);
 
-void Execute (Processor* Stream);
+int LineToCommands (char* line, Assembler* AsmInfo);
 
-void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream);
+int GetCmdNum (char* cmd);
 
-void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream);
+void StartAsm();
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream);
+int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation);
 
-void ProcCtor (Processor* self);
+int GetRegNum (char* reg);
 
-void ProcDtor (Processor* self);
+void ProcessPush (Stack* self, int arr);
 
-int* GetArg (int cmd, const char* code, Processor* Stream);
-# 3 "proc.cpp" 2
+int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type);
 
-void StartProc ()
+bool HandleRam (char* cmd_line);
+
+int ParseLabel (Assembler* AsmInfo,char* line);
+
+int IsJmp (Assembler* AsmInfo, char* line);
+
+void FillMissingLabels (Assembler* AsmInfo);
+
+void FillWorkData (Assembler* AsmInfo);
+
+void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd);
+
+void AsmInfoDtor (Assembler* AsmInfo);
+
+int FindLabel (Assembler* AsmInfo, char* label_name);
+
+void HandleEachLine (Text* RawCmd, Assembler* AsmInfo);
+
+void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo);
+
+int IsLabel (char* line, Assembler* AsmInfo);
+# 3 "asm.cpp" 2
+
+
+void StartAsm()
 {
-    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE);
-    fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
+    Text RawCmd = {};
 
-    Processor Stream = {};
-    ProcCtor (&Stream);
+    FILE* RawCmdFile = get_file ("../data/asm.txt", "r");
+    FILE* CmdFile = get_file ("../data/cmds.bin", "wb+");
 
-    ParseBinFile (&Stream, buffer);
-    if (Stream.version != PROC_VERSION) printf ("Wrong bin file!");
-    Execute (&Stream);
+    HandleTextStruct (&RawCmd, RawCmdFile);
 
-    FREE(buffer);
+    RawToBin (RawCmd, CmdFile);
+
+    TextDestr (&RawCmd);
+    fclose (RawCmdFile);
     fclose (CmdFile);
-    ProcDtor (&Stream);
 }
 
 
-void ParseBinFile (Processor* self, char* code)
+void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    self->version = code[VERSION_INDX];
-    self->cmds_amount = code[CMD_AMT_INDX];
+    Assembler AsmInfo = {};
+    AsmInfoCtor (&AsmInfo, &RawCmd);
 
-    if (code[SG_INDX1] != 'C' || code[SG_INDX2] != 'U' || code[SG_INDX3] != 'M') printf ("Wrong signature!\n");
 
-    printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", code[VERSION_INDX], code[CMD_AMT_INDX]);
 
-    self->cmds = code;
+    HandleEachLine (&RawCmd, &AsmInfo);
 
+
+
+    PrepareForSecondLap (&RawCmd, &AsmInfo);
+    HandleEachLine (&RawCmd, &AsmInfo);
+
+
+
+    FillWorkData (&AsmInfo);
+
+    fwrite (AsmInfo.commands, sizeof (int), AsmInfo.cur_len, CmdFile);
+
+
+    AsmInfoDtor (&AsmInfo);
 }
 
 
-void Execute (Processor* Stream)
+void HandleEachLine (Text* RawCmd, Assembler* AsmInfo)
 {
-    Stack MainStack = {};
-    StackCtor (&MainStack, 2);
-
-    for (int ip = WORK_DATA_LEN; ip < Stream->cmds_amount; ip++)
+    for (int line_ctr = 0; line_ctr < RawCmd->lines_amount; line_ctr++)
     {
-        ProcessCommand (&MainStack, Stream->cmds + ip, &ip, Stream);
+        AsmInfo->cur_len += LineToCommands (RawCmd->lines_array[line_ctr].begin_ptr, AsmInfo);
     }
-
-    StackDtor (&MainStack);
 }
 
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* Stream)
+void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo)
 {
-# 62 "proc.cpp"
-    switch (*code & CMD_BITMASK)
+    AsmInfo->cur_len = WORK_DATA_LEN;
+    memset (AsmInfo->commands, 0, RawCmd->lines_amount * 2);
+}
+
+
+void FillWorkData (Assembler* AsmInfo)
+{
+    AsmInfo->commands[VERSION_INDX] = VERSION;
+    AsmInfo->commands[CMD_AMT_INDX] = AsmInfo->cur_len;
+    AsmInfo->commands[SG_INDX1] = 'C';
+    AsmInfo->commands[SG_INDX2] = 'U';
+    AsmInfo->commands[SG_INDX3] = 'M';
+}
+
+
+int LineToCommands (char* line, Assembler* AsmInfo)
+{
+    printf ("Ip %d: ", AsmInfo->cur_len);
+
+    if (IsLabel (line, AsmInfo)) return ZERO_OFFSET;
+
+
+
+
+
+
+
+# 1 "../include/codegen/line_to_cmds.h" 1
+if (strncmp ("PUSH", line, PUSH_LEN) == 0) {return ParseCmd (AsmInfo, line + PUSH_LEN + 1, PUSH);} else
+
+
+
+if (strncmp ("POP", line, POP_LEN) == 0) {return ParseCmd (AsmInfo, line + POP_LEN + 1, POP);} else
+
+
+
+if (strncmp ("JMP", line, JMP_LEN) == 0) {return ParseCmd (AsmInfo, line + JMP_LEN + 1, JMP);} else
+
+
+
+if (strncmp ("J", line, J_LEN) == 0) {return IsJmp (AsmInfo, line);} else
+# 86 "asm.cpp" 2
+
+
     {
-# 1 "../include/cmds.h" 1
-case HLT: { printf ("End of commands\n"); } break;
-
-
-
-
-
-case PUSH: { ProcessPush (self, code, *ip, Stream); (*ip) += INT_OFFSET; } break;
-
-
-
-
-
-case MLT: { StackPush (self, StackPop (self) + StackPop (self)); } break;
-
-
-
-
-case ADD: { printf ("Adding\n"); StackPush (self, StackPop(self) + StackPop(self)); } break;
-
-
-
-
-
-case SUB: { StackPush (self, -StackPop (self) + StackPop (self)); } break;
-
-
-
-
-case DIV: { StackPush (self, StackPop(self) / StackPop(self)); } break;
-
-
-
-
-case POP: { ProcessPop (self, code, *ip, Stream); printf ("Popping.\n"); (*ip) += INT_OFFSET; } break;
-
-
-
-
-
-
-case OUT: { printf ("Stack out: %d\n", StackPop (self)); } break;
-
-
-
-
-
-case DMP: {} break;
-
-case JMP: { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } break;
-
-
-
-
-
-case JB: { if (StackPop(self) < StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 68 "../include/cmds.h"
-case JBE: { if (StackPop(self) <= StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 81 "../include/cmds.h"
-case JA: { if (StackPop(self) > StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 93 "../include/cmds.h"
-case JAE: { if (StackPop(self) >= StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 106 "../include/cmds.h"
-case JE: { if (StackPop(self) == StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 119 "../include/cmds.h"
-case JNE: { if (StackPop(self) != StackPop(self)) { *ip = *(int*)(code + 1) - 1; printf ("Jumping to %d\n", *ip); } else { *ip += INT_OFFSET; } } break;
-# 132 "../include/cmds.h"
-case IN: {} break;
-# 65 "proc.cpp" 2
-
-
-        default:
-            printf ("UK %d\n", *code);
-            break;
+        AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
+        return DEFAULT_CMD_OFFSET;
     }
 
 
-}
 
 
-void ProcessPush (Stack* self, const char* code, int ip, Processor* Stream)
-{
-    int* arg = GetArg (*code, code, Stream);
-
-
-
-    StackPush (self, *arg);
-}
-
-
-void ProcessPop (Stack* self, const char* code, int ip, Processor* Stream)
-{
-    int* arg = GetArg (*code, code, Stream);
-
-
-
-    *arg = StackPop (self);
-}
-
-
-int* GetArg (int cmd, const char* code, Processor* Stream)
-{
-
-
-    int* arg = nullptr;
-
-    if (cmd & ARG_IMMED) arg = (int*)(code + 1);
-    if (cmd & ARG_REG) arg = Stream->Regs + *(int*)(code + 1);
-    if (cmd & ARG_MEM) arg = Stream->Ram + *arg;
-
-
-
-    return arg;
-}
-
-
-void ProcCtor (Processor* self)
-{
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;
-
-    memset (self->Regs, 0, sizeof(int) * REG_AMOUNT);
-
-    self->Ram = (int*) calloc (RAM_SIZE, sizeof (int));
 
 }
 
 
-void ProcDtor (Processor* self)
+int IsLabel (char* line, Assembler* AsmInfo)
 {
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;
+    int last_char_indx = 0;
+    char tmp_line[MAX_CMD_LEN] = "";
+    sscanf (line, "%s%n", tmp_line, &last_char_indx);
 
-    memset (self->Regs, -1, sizeof(int) * REG_AMOUNT);
+    if (line[last_char_indx - 1] == ':')
+    {
+        line[last_char_indx - 1] = '\0';
 
-    FREE(self->Ram);
+        ParseLabel (AsmInfo, line);
+
+        return 1;
+    }
+
+    return 0;
+}
+
+
+int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
+{
+    printf ("Started to parse %s\n", cur_cmd_line);
+    AsmInfo->commands[AsmInfo->cur_len] = operation;
+
+    if (HandleRam (cur_cmd_line))
+    {
+        AsmInfo->commands[AsmInfo->cur_len] |= ARG_MEM;
+        cur_cmd_line++;
+    }
+
+    int tmp_imm = 0;
+    char tmp_reg[MAX_CMD_LEN] = "";
+
+    if (sscanf (cur_cmd_line, "%d + %s", &tmp_imm, tmp_reg) == 2 ||
+         sscanf (cur_cmd_line, " %[^+] + %d", tmp_reg, &tmp_imm ) == 2)
+    {
+        printf ("Oh, we got + sign \n");
+
+        AsmInfo->commands[AsmInfo->cur_len] |= ARG_IMMED;
+        AsmInfo->commands[AsmInfo->cur_len] |= ARG_REG;
+
+        int reg_number = GetRegNum (tmp_reg);
+        printf ("Register %d\n", reg_number);
+
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = tmp_imm;
+                AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET] = reg_number;
+    }
+
+    else if (sscanf (cur_cmd_line, "%d", &tmp_imm))
+    {
+        AsmInfo->commands[AsmInfo->cur_len] |= ARG_IMMED;
+
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = tmp_imm;
+    }
+
+    else
+    {
+
+        AsmInfo->commands[AsmInfo->cur_len] |= ARG_REG;
+
+        int reg_number = GetRegNum (cur_cmd_line);
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + MULTI_BYTE_OFFSET) = reg_number;
+    }
+
+    return DEFAULT_TWO_CMD_OFFSET;
+}
+
+
+int IsJmp (Assembler* AsmInfo, char* line)
+{
+
+
+
+
+
+# 1 "../include/codegen/jumps.h" 1
+if (strncmp ("JMP", line, 3) == 0) return ParseJmp (AsmInfo, line + 3, JMP);
+if (strncmp ("JB", line, 2) == 0) return ParseJmp (AsmInfo, line + 2, JB);
+if (strncmp ("JBE", line, 3) == 0) return ParseJmp (AsmInfo, line + 3, JBE);
+if (strncmp ("JA", line, 2) == 0) return ParseJmp (AsmInfo, line + 2, JA);
+if (strncmp ("JAE", line, 3) == 0) return ParseJmp (AsmInfo, line + 3, JAE);
+if (strncmp ("JE", line, 2) == 0) return ParseJmp (AsmInfo, line + 2, JE);
+if (strncmp ("JNE", line, 3) == 0) return ParseJmp (AsmInfo, line + 3, JNE);
+# 176 "asm.cpp" 2
+
+
+
+
+    return -1;
+}
+
+
+int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
+{
+    printf ("Parsing jump with type %d:\n", jmp_type);
+
+    char label_name[MAX_CMD_LEN] = "";
+
+    sscanf (cur_cmd_line, "%s", label_name);
+
+    printf (" Working with label %s\n", label_name);
+    int label_indx = FindLabel (AsmInfo, label_name);
+
+    if (label_indx != -1)
+    {
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = AsmInfo->labels[label_indx].label_pos;
+        printf ("-----We have jumping position %d --------\n", AsmInfo->labels[label_indx].label_pos);
+    }
+    else
+    {
+        *(int*)(AsmInfo->commands + AsmInfo->cur_len + 1) = -1;
+
+    }
+
+    AsmInfo->commands[AsmInfo->cur_len] = jmp_type;
+
+    return DEFAULT_TWO_CMD_OFFSET;
+}
+
+
+int FindLabel (Assembler* AsmInfo, char* label_name)
+{
+    for (int i = 0; i < AsmInfo->labels_amount; i++)
+    {
+        if (strcmp(label_name, AsmInfo->labels[i].name) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+int ParseLabel (Assembler* AsmInfo, char* line)
+{
+    printf ("Analysing label %s\n", line);
+
+    for (int i = 0; i< AsmInfo->labels_amount; i++)
+    {
+        if (strcmp (line, AsmInfo->labels[i].name) == 0) return ZERO_OFFSET;
+    }
+
+    AsmInfo->labels[AsmInfo->labels_amount].name = line;
+
+    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
+
+    AsmInfo->labels_amount++;
+
+    return ZERO_OFFSET;
+}
+
+
+bool HandleRam (char* cmd_line)
+{
+    if (*cmd_line == '[')
+    {
+        *cmd_line = ' ';
+
+        char tmp_str[10] = "";
+        int cmd_len = 0;
+
+
+        sscanf (cmd_line, "%s%n", tmp_str, &cmd_len);
+
+        *(cmd_line + cmd_len - 1) = ' ';
+
+        return true;
+    }
+
+    return false;
+}
+
+
+void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd)
+{
+    AsmInfo->commands = (char*) calloc (sizeof (int), RawCmd->lines_amount * 2);
+    AsmInfo->labels = (Label*) calloc (sizeof(Label), MAX_LABELS);
+
+    AsmInfo->cur_len = WORK_DATA_LEN;
+    AsmInfo->labels_amount = 0;
+}
+
+
+void AsmInfoDtor (Assembler* AsmInfo)
+{
+    FREE(AsmInfo->commands);
+    FREE(AsmInfo->labels);
+
+    AsmInfo->cur_len = 0;
+}
+
+
+int GetRegNum (char* reg)
+{
+
+    printf("recieved chars %c and %c\n", reg[0], reg[2]);
+    if (reg[0] == 'r' && reg[2] == 'x')
+    {
+        return reg[1] - 'a';
+    }
+
+    return 0;
+}
+
+
+int GetCmdNum (char* cmd)
+{
+
+
+
+
+
+
+# 1 "../include/codegen/cmds.h" 1
+if (strcmp (cmd, "HLT") == 0) return 0; else
+
+
+
+
+
+if (strcmp (cmd, "PUSH") == 0) return 1; else
+# 24 "../include/codegen/cmds.h"
+if (strcmp (cmd, "POP") == 0) return 6; else
+# 44 "../include/codegen/cmds.h"
+if (strcmp (cmd, "MLT") == 0) return 2; else
+
+
+
+
+if (strcmp (cmd, "ADD") == 0) return 3; else
+
+
+
+
+
+if (strcmp (cmd, "SUB") == 0) return 4; else
+
+
+
+
+if (strcmp (cmd, "DIV") == 0) return 5; else
+
+
+
+
+
+
+if (strcmp (cmd, "OUT") == 0) return 7; else
+
+
+
+
+
+if (strcmp (cmd, "DMP") == 0) return 8; else
+
+if (strcmp (cmd, "JMP") == 0) return 9; else
+
+
+
+
+
+if (strcmp (cmd, "JB") == 0) return 10; else
+# 94 "../include/codegen/cmds.h"
+if (strcmp (cmd, "JBE") == 0) return 11; else
+# 107 "../include/codegen/cmds.h"
+if (strcmp (cmd, "JA") == 0) return 12; else
+# 120 "../include/codegen/cmds.h"
+if (strcmp (cmd, "JAE") == 0) return 13; else
+# 133 "../include/codegen/cmds.h"
+if (strcmp (cmd, "JE") == 0) return 14; else
+# 146 "../include/codegen/cmds.h"
+if (strcmp (cmd, "JNE") == 0) return 15; else
+# 159 "../include/codegen/cmds.h"
+if (strcmp (cmd, "IN") == 0) return 16; else
+# 306 "asm.cpp" 2
+    {return 0;}
+
+
+
 }

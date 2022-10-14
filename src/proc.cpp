@@ -65,7 +65,7 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 
     switch (*code & CMD_BITMASK)
     {
-        #include "../include/cmds.h"
+        #include "../include/codegen/cmds.h"
 
 
         default:

@@ -70,7 +70,15 @@ DEF_CMD(OUT, 7,
     printf ("Stack out: %d\n", StackPop (self));
 })
 
-DEF_CMD(DMP, 8, {})
+DEF_CMD(DMP, 8, 
+{
+    StackDump(self);
+    
+    for (int i = 0; i < REG_AMOUNT; i++)
+    {
+        printf ("Register %d: %d\n", i, CpuInfo->Regs[i]);
+    }
+})
 
 DEF_CMD(JMP, 9, 
 {
@@ -157,3 +165,5 @@ DEF_CMD(JNE, 15,
 })
 
 DEF_CMD(IN, 16, {})
+
+

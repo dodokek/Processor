@@ -6,7 +6,6 @@ void StartDisasm()
 
     FILE* CmdFile    = get_file ("../data/cmds.bin", "rb");
     FILE* DisasFile  = get_file ("../data/disass.txt", "w");
-    fputs ("bebra", DisasFile);
 
     char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); 
     fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);

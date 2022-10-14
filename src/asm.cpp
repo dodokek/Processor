@@ -9,9 +9,7 @@ void StartAsm()
     FILE* RawCmdFile = get_file ("../data/asm.txt", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
-    // process
-    
-    ProccessTextStruct (&RawCmd, RawCmdFile);
+    HandleTextStruct (&RawCmd, RawCmdFile);
 
     RawToBin (RawCmd, CmdFile);
 
@@ -33,17 +31,15 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
     // Second lap to fill labels
 
     PrepareForSecondLap (&RawCmd, &AsmInfo);
-
     HandleEachLine (&RawCmd, &AsmInfo);
 
-    //Filling stuff info
+    //Filling signatures and writing result in file
 
     FillWorkData (&AsmInfo);
-    
-    // Destructors
 
     fwrite (AsmInfo.commands, sizeof (int), AsmInfo.cur_len, CmdFile);
     
+    // Destructor
     AsmInfoDtor (&AsmInfo);
 }
 
@@ -79,7 +75,12 @@ int LineToCommands (char* line, Assembler* AsmInfo)
     printf ("Ip %d: ", AsmInfo->cur_len);
     
     if (IsLabel (line, AsmInfo)) return ZERO_OFFSET;
-    
+
+    // Generating command cases
+
+    #define DEF_LINE(name, len, code)                         \
+        if (strncmp (#name, line, len) == 0) {return code;}   \
+        else
 
     if (strncmp ("PUSH", line, PUSH_LEN) == 0)
     {
@@ -102,6 +103,11 @@ int LineToCommands (char* line, Assembler* AsmInfo)
         AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
         return DEFAULT_CMD_OFFSET;
     }
+
+    #undef DEF_LINE
+
+    //----------------------
+    
 }
 
 
@@ -111,8 +117,10 @@ int IsLabel (char* line, Assembler* AsmInfo)
     char tmp_line[MAX_CMD_LEN] = "";
     sscanf (line, "%s%n", tmp_line, &last_char_indx);
 
+
     if (line[last_char_indx - 1] == ':') 
     {
+    printf ("parsing label\n");
         line[last_char_indx - 1] = '\0';
 
         ParseLabel (AsmInfo, line);  
@@ -162,7 +170,6 @@ int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
     
     else    
     {
-
         AsmInfo->commands[AsmInfo->cur_len] |= ARG_REG;
 
         int reg_number = GetRegNum (cur_cmd_line);
@@ -175,12 +182,12 @@ int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
 
 int IsJmp (Assembler* AsmInfo, char* line)
 {
-    // ??
+    
     #define DEF_JMP(name, len) \
         if (strncmp (#name,  line, len) == 0) return ParseJmp (AsmInfo, line + len, name);  
     
     //-------
-    #include "../include/jumps.h"
+    #include "../include/codegen/jumps.h"
     //-------
 
     #undef DEF_JMP
@@ -191,7 +198,9 @@ int IsJmp (Assembler* AsmInfo, char* line)
 
 int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
 {
+    cur_cmd_line++;
     printf ("Parsing jump with type %d:\n", jmp_type);
+    printf ("Working with line %s \n", cur_cmd_line);
 
     char label_name[MAX_CMD_LEN] = "";
     
@@ -241,7 +250,7 @@ int ParseLabel (Assembler* AsmInfo, char* line)
 
     AsmInfo->labels[AsmInfo->labels_amount].name = line;
 
-    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
+    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len + 1;
 
     AsmInfo->labels_amount++;
 
@@ -310,7 +319,7 @@ int GetCmdNum (char* cmd)
     else
 
     //------
-    #include "../include/cmds.h"
+    #include "../include/codegen/cmds.h"
     {return 0;}
     //------
 

@@ -46,7 +46,7 @@ int separate_lines (Text *MainText)
 }
 
 
-void ProccessTextStruct (Text* MainText, FILE* input_file)
+void HandleTextStruct (Text* MainText, FILE* input_file)
 {
     read_file (input_file, MainText);
 

@@ -1,7 +1,12 @@
-PUSH 1
-PUSH 2
-JMP bebra
-PUSH 500
-bebra:
+beb:
+
+PUSH rax + 1
+POP rax
+
+PUSH rax
+PUSH 10
+JAE beb
+
+PUSH rax
 OUT
 HTL

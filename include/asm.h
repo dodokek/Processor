@@ -61,7 +61,7 @@ enum Commands
     #define DEF_CMD(name, num, code) \
     name = num,
 
-    #include "cmds.h"
+    #include "codegen/cmds.h"
 
     #undef DEF_CMD
 };

@@ -49,7 +49,7 @@ int count_lines (char *buffer, int symbols_read);
 
 void TextDestr(Text *self);
  
-void ProccessTextStruct (Text* MainText, FILE* input_file);
+void HandleTextStruct (Text* MainText, FILE* input_file);
 
 //-----------------------------------------------------------------------------
 
