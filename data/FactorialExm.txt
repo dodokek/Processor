@@ -1,7 +1,9 @@
+IN
+POP rcx
+
 
 PUSH 1
 POP rbx
-
 
 beb:
 
@@ -14,10 +16,12 @@ MLT
 POP rbx
 
 PUSH rax
-PUSH 10
+PUSH rcx
 
 JAE beb
 
 PUSH rbx
+
+
 OUT
 HTL

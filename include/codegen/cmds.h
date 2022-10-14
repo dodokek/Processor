@@ -4,7 +4,7 @@
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
-    
+    // exit(0  );
 })
 
 
@@ -29,13 +29,13 @@ DEF_CMD(POP, 6,
     elem_t value = 0;
     elem_t* arg = GetArg (*code, code, CpuInfo, &value);
     
-    printf ("Arg %lg \n", *arg);
 
     if (arg) *arg = StackPop (self);  
     else
     {
         printf ("SIGIL\n");
     }
+    printf ("Arg %lg \n", *arg);
 
     printf ("Popping.\n");
 
@@ -66,12 +66,10 @@ DEF_CMD(DIV, 5,
     StackPush (self, StackPop(self) / StackPop(self));
 })
 
-
-
 DEF_CMD(OUT, 7, 
 {
-    // StackDump (self);
-    printf ("Stack out: %lg\n", StackPop (self));
+    // StackDump (self);        
+    printf ("------STACK OUT: %lg-------\n", StackPop (self));
 })
 
 DEF_CMD(DMP, 8, 
@@ -196,4 +194,18 @@ DEF_CMD(IN, 16,
     StackPush (self, tmp_num);
 })
 
+
+DEF_CMD(CALL, 17, 
+{
+    StackPush (&CpuInfo->CallStack, *ip + MULTI_BYTE_OFFSET);
+    *ip = LABLE_POS;
+    printf ("Calling ip %d\n", *ip);
+})
+
+
+DEF_CMD(RET, 18, 
+{
+    *ip = StackPop(&CpuInfo->CallStack);
+    printf ("Returning to %d\n", *ip);
+})
 

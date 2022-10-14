@@ -13,3 +13,7 @@ DEF_LINE("JMP", JMP_LEN,
 DEF_LINE("J", J_LEN, 
     IsJmp (AsmInfo, line)
 )
+
+DEF_LINE("CALL", 4, 
+    IsJmp (AsmInfo, line)
+)

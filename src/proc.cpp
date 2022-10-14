@@ -114,6 +114,9 @@ void ProcCtor (Processor* self)
     memset (self->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
     self->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
+
+    self->CallStack = {};
+    StackCtor (&self->CallStack, 2);
 }
 
 

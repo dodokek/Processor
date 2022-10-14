@@ -241,7 +241,7 @@ int ParseLabel (Assembler* AsmInfo, char* line)
 
     AsmInfo->labels[AsmInfo->labels_amount].name = line;
 
-    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len + 1;
+    AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
 
     AsmInfo->labels_amount++;
 

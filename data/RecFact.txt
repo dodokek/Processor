@@ -1,0 +1,36 @@
+
+PUSH 3 
+POP rcx
+
+PUSH 1
+POP rax
+
+CALL fact
+
+
+PUSH rax
+OUT
+HLT
+
+fact:
+
+PUSH 2
+PUSH rcx
+JAE ifgreater1
+
+RET
+
+ifgreater1:
+
+PUSH rax
+PUSH rcx
+MLT
+POP rax
+
+PUSH rcx + -1
+POP rcx
+
+CALL fact
+
+RET
+

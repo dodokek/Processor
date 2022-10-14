@@ -27,8 +27,9 @@ struct Processor
     const char* cmds;
 
     elem_t Regs[4];
-
     elem_t* Ram;
+
+    Stack CallStack;
 };
 
 

@@ -17,7 +17,7 @@ enum LEN
 };
 
 
-enum OFSSETS
+enum OFFSETS
 {
     INT_OFFSET = 4,
     MULTI_BYTE_OFFSET = sizeof (elem_t) + 1,
