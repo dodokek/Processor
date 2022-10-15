@@ -1,0 +1,49 @@
+PUSH 1
+PUSH 2
+PUSH 4
+POP rax
+POP rbx
+POP rcx
+
+CALL solvediskr
+
+PUSH rdx
+PUSH 0
+JE zerod 
+
+OUT
+HLT
+
+
+solvediskr:
+    PUSH rax
+    PUSH rcx
+
+    MUL
+    PUSH 4
+    MUL
+    PUSH -1
+    MUL
+    POP [1]
+
+    PUSH 1337
+    OUT
+    PUSH rbx
+    PUSH rbx
+    MUL
+    DMP
+    POP [2]
+
+    PUSH [2]
+    PUSH [1]
+
+    ADD
+    POP rdx
+RET
+
+zerod:
+    PUSH 500
+    OUT
+
+    HLT
+

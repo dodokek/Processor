@@ -10,8 +10,8 @@
 //-----------------------------------------------
 enum ProcInfo
 {
-    MAX_BIN_SIZE = 100,
-    MAX_CMDS_AMOUNT = 50,
+    MAX_BIN_SIZE = 1000,
+    MAX_CMDS_AMOUNT = 1000,
     PROC_VERSION = 2,
     REG_AMOUNT = 4,
     RAM_SIZE = 1000,

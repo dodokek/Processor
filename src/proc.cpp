@@ -1,11 +1,12 @@
 
 #include "../include/proc.h"
 
+
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); 
-    fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
+    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
+    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
 
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
@@ -24,6 +25,7 @@ void ParseBinFile (Processor* self, char* code)
 {
     self->version = code[VERSION_INDX];
     self->cmds_amount = *(int*)(code + CMD_AMT_INDX);
+
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
         code[SG_INDX3] != 'M') 
@@ -73,15 +75,8 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)          
 {
-    // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
-
-    // printf ("Lets get some args!\n");
-    // printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
-
     elem_t* arg_ptr = 0;
     int reg_indx = code[sizeof(elem_t) + BYTE_OFFSET];
-
-    // printf ("Reg indx %d\n", reg_indx);
 
     if (cmd & ARG_IMMED) *val = *(elem_t*)(code + 1);
     
@@ -92,14 +87,11 @@ elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)
 
     if ((cmd & ARG_REG) && !(cmd & ARG_IMMED))
     {
-        // printf ("Working with register value \n");
         arg_ptr = CpuInfo->Regs + reg_indx; 
         *val    = CpuInfo->Regs[reg_indx];
     }
 
     if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + int(*val);
-
-    // printf ("arg ptr %p\n", arg_ptr);
 
     return arg_ptr;
 }

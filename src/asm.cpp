@@ -37,7 +37,7 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
 
     FillWorkData (&AsmInfo);
 
-    fwrite (AsmInfo.commands, sizeof (int), AsmInfo.cur_len, CmdFile);
+    fwrite (AsmInfo.commands, sizeof (elem_t), AsmInfo.cur_len, CmdFile);
     
     // Destructor
     AsmInfoDtor (&AsmInfo);
@@ -72,9 +72,11 @@ void FillWorkData (Assembler* AsmInfo)
 
 int LineToCommands (char* line, Assembler* AsmInfo)
 {
-    printf ("Ip %d: ", AsmInfo->cur_len);
+    if (*line == '/') return ZERO_OFFSET;  // Handling comments
+
+    printf ("Ip %d commands %s: ", AsmInfo->cur_len, line);
     
-    if (IsLabel (line, AsmInfo)) return ZERO_OFFSET;
+    if (IsLabel (line, AsmInfo)) return ZERO_OFFSET;  // Handling label
 
     // Generating command cases
 
@@ -86,14 +88,13 @@ int LineToCommands (char* line, Assembler* AsmInfo)
 
     /*else*/
     {
-        AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
-
+        int CmdNum = GetCmdNum (line);
+        AsmInfo->commands[AsmInfo->cur_len] = CmdNum;
         return DEFAULT_CMD_OFFSET;
     }
 
     #undef DEF_LINE
 
-    //----------------------
     return 0;
 }
 
@@ -229,7 +230,6 @@ int FindLabel (Assembler* AsmInfo, char* label_name)
     return -1;
 }
 
-
 int ParseLabel (Assembler* AsmInfo, char* label, int label_len)
 {
     printf ("Analysing label %s\n", label);
@@ -240,7 +240,11 @@ int ParseLabel (Assembler* AsmInfo, char* label, int label_len)
 
     for (int i = 0; i< AsmInfo->labels_amount; i++)
     {
-        if (strcmp (label_copy, AsmInfo->labels[i].name) == 0) return ZERO_OFFSET;
+        if (strcmp (label_copy, AsmInfo->labels[i].name) == 0) 
+        {
+            return ZERO_OFFSET;
+            printf ("HAVE SEEN LABEL BEFORE\n");
+        }
     }
 
     strcpy (AsmInfo->labels[AsmInfo->labels_amount].name, label_copy);
@@ -274,7 +278,7 @@ bool HandleRam (char* cmd_line)
 
 void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd)
 {
-    AsmInfo->commands = (char*)  calloc (sizeof (elem_t), RawCmd->lines_amount * 2);
+    AsmInfo->commands = (char*)  calloc (sizeof (elem_t) * 2, RawCmd->lines_amount * 2);
     AsmInfo->labels =   (Label*) calloc (sizeof(Label), MAX_LABELS);
 
     AsmInfo->cur_len = WORK_DATA_LEN;
@@ -305,6 +309,7 @@ int GetRegNum (char* reg)
 
 int GetCmdNum (char* cmd)
 {
+    printf ("Getting number of line %s\n\n", cmd);
     #define DEF_CMD(name, num, code) \
     if (strcmp (cmd, #name) == 0) return num; \
     else
@@ -312,7 +317,7 @@ int GetCmdNum (char* cmd)
     //------------------
     #include "../include/codegen/cmds.h"
     {
-        printf ("SIGILL\n");
+        printf ("=========SIGILL %d:==========\n", cmd);
         return -1;
     }
     //------------------

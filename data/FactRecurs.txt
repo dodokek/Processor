@@ -1,6 +1,5 @@
+IN
 
-
-IN 
 POP rcx
 
 PUSH 1
@@ -15,23 +14,24 @@ HLT
 
 fact:
 
-PUSH rcx
-PUSH rax
-MUL
-POP rax
+    PUSH rcx
+    PUSH rax
+    MUL
+    POP rax
 
-PUSH rcx
-PUSH -1
-ADD
-POP rcx
+    PUSH rcx
+    PUSH -1
+    ADD
+    POP rcx
 
-PUSH 1
-PUSH rcx
-JBE greaterone
+    PUSH 1
+    PUSH rcx
+    JBE greaterone
 
-CALL fact
+    CALL fact
 
-greaterone:
+    greaterone:
+
 RET
 
 

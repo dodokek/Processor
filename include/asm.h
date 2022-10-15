@@ -32,7 +32,7 @@ enum OFFSETS
 enum SIZES
 {
     VERSION = 2,
-    MAX_LABELS = 10, 
+    MAX_LABELS = 100, 
     FILL_LABEL_FLAG = -1,
     MAX_CMD_LEN = 20,
 };
@@ -72,7 +72,9 @@ enum Registers
     RAX = 0,
     RBX,
     RCX,
-    RDX
+    RDX,
+    REX,
+    RFX,
 };
 
 

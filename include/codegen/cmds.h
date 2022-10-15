@@ -1,10 +1,11 @@
+
 #define LABLE_POS int(*(elem_t*)(code + 1) - 1)
 
 
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
-    exit(0  );
+    exit(0);
 })
 
 
@@ -28,15 +29,15 @@ DEF_CMD(POP, 6,
 {
     elem_t value = 0;
     elem_t* arg = GetArg (*code, code, CpuInfo, &value);
-    
+    printf ("Popping\n");    
 
     if (arg) *arg = StackPop (self);  
     else
     {
-        printf ("SIGIL\n");
+        printf ("=======SIGIL=======\n");
     }
     
-    if (*code & ARG_MEM) DrawMemory (CpuInfo);
+    // if (*code & ARG_MEM) DrawMemory (CpuInfo);
 
     (*ip) += MULTI_BYTE_OFFSET;
 
@@ -45,8 +46,8 @@ DEF_CMD(POP, 6,
 
 DEF_CMD(MUL, 2,
 {
-    StackPush (self, StackPop (self) * StackPop (self));
     printf ("Multiplying\n");
+    StackPush (self, StackPop (self) * StackPop (self));
 })
 
 DEF_CMD(ADD, 3,
@@ -57,7 +58,7 @@ DEF_CMD(ADD, 3,
 
 DEF_CMD(SUB, 4,
 {
-    StackPush (self, -StackPop (self) + StackPop (self));
+    StackPush (self, StackPop (self) - StackPop (self));
 })
 
 DEF_CMD(DIV, 5,
@@ -75,6 +76,8 @@ DEF_CMD(DMP, 8,
 {
     printf ("\n ----- BEG OF DUMP ------ \n");
 
+    
+
     StackDump(self);
 
     for (int i = 0; i < REG_AMOUNT; i++)
@@ -84,17 +87,19 @@ DEF_CMD(DMP, 8,
 
     printf ("Commands: \n");
 
-    for (int i = 0; i < *ip; i++)
+    for (int i = *ip - 5; i <= *ip + 15; i++)
     {
-        printf ("%2x ", CpuInfo->cmds[i]);
+        printf ("%2x %d ", CpuInfo->cmds[i], i);
     }
 
     printf ("\n");
 
-    for (int i = 0; i < *ip; i++)
+    for (int i = *ip - 5; i <= *ip + 20; i++)
     {
-        printf ("%2c ", (i == *ip - 1) ? '^' : '~');
+        printf ("%2c %d ", (i == *ip - 1) ? '^' : '~', i);
     }
+
+    printf ("\nCUr ip is %d\n", *ip);
 
     printf ("\n\n ----- END OF DUMP ------ \n\n");
 })
@@ -208,3 +213,23 @@ DEF_CMD(RET, 18,
     printf ("Returning to %d\n", *ip);
 })
 
+DEF_CMD(SQR, 19, 
+{
+    printf ("Getting root\n");
+    StackPush(self, sqrt(StackPop(self)));
+})
+
+DEF_CMD(ZEROSOL, 20, 
+{
+    printf ("----Equation has zero solutions-----\n");
+})
+
+DEF_CMD(MEOW, 21, 
+{
+    printf ("Meow meow\n");
+})
+
+DEF_CMD(INF_SOL, 22,
+{
+    printf ("----Infinite amount of solutions------\n");
+})
