@@ -14,7 +14,7 @@ enum ProcInfo
     MAX_CMDS_AMOUNT = 50,
     PROC_VERSION = 2,
     REG_AMOUNT = 4,
-    RAM_SIZE = 100,
+    RAM_SIZE = 1000,
 };
 //-----------------------------------------------
 
@@ -46,5 +46,7 @@ void ProcCtor (Processor* self);
 void ProcDtor (Processor* self);
 
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val);
+
+void DrawMemory (Processor* CpuInfo);
 
 #endif

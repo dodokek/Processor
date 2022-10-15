@@ -35,16 +35,15 @@ DEF_CMD(POP, 6,
     {
         printf ("SIGIL\n");
     }
-    printf ("Arg %lg \n", *arg);
-
-    printf ("Popping.\n");
+    
+    if (*code & ARG_MEM) DrawMemory (CpuInfo);
 
     (*ip) += MULTI_BYTE_OFFSET;
 
 })
 
 
-DEF_CMD(MLT, 2,
+DEF_CMD(MUL, 2,
 {
     StackPush (self, StackPop (self) * StackPop (self));
     printf ("Multiplying\n");

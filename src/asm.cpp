@@ -6,7 +6,7 @@ void StartAsm()
 {
     Text RawCmd = {};
 
-    FILE* RawCmdFile = get_file ("../data/asm.txt", "r");
+    FILE* RawCmdFile = get_file ("../data/commands.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCmd, RawCmdFile);
@@ -319,3 +319,4 @@ int GetCmdNum (char* cmd)
 
     #undef DEF_CMD
 }
+
