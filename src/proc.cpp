@@ -1,11 +1,12 @@
 
 #include "../include/proc.h"
 
+
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (int), MAX_BIN_SIZE); 
-    fread (buffer, sizeof (int), MAX_CMDS_AMOUNT, CmdFile);
+    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
+    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
 
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
@@ -20,19 +21,20 @@ void StartProc ()
 }
 
 
-void ParseBinFile (Processor* self, char* code)
+void ParseBinFile (Processor* CpuInfo, char* code)
 {
-    self->version = code[VERSION_INDX];
-    self->cmds_amount = *(int*)(code + CMD_AMT_INDX);
+    CpuInfo->version = code[VERSION_INDX];
+    CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
+
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
         code[SG_INDX3] != 'M') 
         printf ("Wrong signature!\n");
 
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
-            code[VERSION_INDX], self->cmds_amount);
+            code[VERSION_INDX], CpuInfo->cmds_amount);
 
-    self->cmds = code; 
+    CpuInfo->cmds = code; 
 }
 
 
@@ -73,15 +75,8 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)          
 {
-    // printf ("Rn we have command: %d\n", cmd & SPEC_BITMASK);
-
-    // printf ("Lets get some args!\n");
-    // printf ("Imm: %d, reg: %d\n", cmd & ARG_IMMED, cmd & ARG_REG);
-
     elem_t* arg_ptr = 0;
     int reg_indx = code[sizeof(elem_t) + BYTE_OFFSET];
-
-    // printf ("Reg indx %d\n", reg_indx);
 
     if (cmd & ARG_IMMED) *val = *(elem_t*)(code + 1);
     
@@ -92,20 +87,18 @@ elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)
 
     if ((cmd & ARG_REG) && !(cmd & ARG_IMMED))
     {
-        // printf ("Working with register value \n");
         arg_ptr = CpuInfo->Regs + reg_indx; 
         *val    = CpuInfo->Regs[reg_indx];
     }
 
     if (cmd & ARG_MEM) arg_ptr = CpuInfo->Ram + int(*val);
 
-    // printf ("arg ptr %p\n", arg_ptr);
-
     return arg_ptr;
 }
 
 
 void DrawMemory (Processor* CpuInfo)
+<<<<<<< HEAD
 {
     elem_t* ram_ptr = CpuInfo->Ram;
 
@@ -130,28 +123,63 @@ void DrawMemory (Processor* CpuInfo)
 
 
 void ProcCtor (Processor* self)
+=======
+>>>>>>> fixing-bug
 {
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;
+    elem_t* ram_ptr = CpuInfo->Ram;
 
-    memset (self->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
+    putchar ('\n');
+    int lines = 30;
+    int cols  = 70;
 
-    self->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
-
-    self->CallStack = {};
-    StackCtor (&self->CallStack, 2);
+    for (int i = 0; i < lines; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (ram_ptr[i*cols+j] == 0)
+            {
+                putchar ('.');
+            }
+            else
+            {
+                putchar ('#');
+            }
+        }
+        putchar ('\n');
+    }
 }
 
 
-void ProcDtor (Processor* self)
+void ProcCtor (Processor* CpuInfo)
 {
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;   
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;
 
-    memset (self->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
+    memset (CpuInfo->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
-    FREE(self->Ram);
+    CpuInfo->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
+
+    CpuInfo->CallStack = {};
+    StackCtor (&CpuInfo->CallStack, 2);
 }
 
+
+void ProcDtor (Processor* CpuInfo)
+{
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;   
+
+    memset (CpuInfo->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
+
+    FREE(CpuInfo->Ram);
+}
+
+
+int main()
+{
+    StartProc();
+
+    return 0;
+}

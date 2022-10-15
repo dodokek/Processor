@@ -11,15 +11,21 @@ STR = stringUtils
 FILE = fileUtils
 MAIN = main
 PROC = proc
-MMAKE = mymake
 DISAS = disasm
 
 #Body
 
-all : $(MAIN)
+# dirs
 
-$(MAIN)     : $(MMAKE).o $(PROC).o  $(ASM).o $(STACK).o $(STR).o $(FILE).o  $(DISAS).o
-	$(CC) $(CFLAGS) $^ -o $@   
+
+
+
+$(ASM)     :  $(ASM).o $(STACK).o $(STR).o $(FILE).o 
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(PROC)     : $(PROC).o  $(STACK).o $(STR).o $(FILE).o
+	$(CC) $(CFLAGS) $^ -o $@
+   
 
 $(ASM).o   : $(ASM).cpp
 	$(CC) $(CFLAGS) $< -c 
@@ -36,10 +42,5 @@ $(STR).o  : $(STR).cpp
 $(PROC).o : $(PROC).cpp
 	$(CC) $(CFLAGS) $< -c
 
-$(MMAKE).o : $(MMAKE).cpp
-	$(CC) $(CFLAGS) $< -c
-
-$(DISAS).o : $(DISAS).cpp
-	$(CC) $(CFLAGS) $< -c
 clean:
 	rm -rf *.o *.save $(MAIN)

@@ -82,15 +82,13 @@ void write_result_in_file (Text *MainText, FILE* output_file)
         fputs (MainText->lines_array[i].begin_ptr, output_file);
         fputc ('\n', output_file);
     }
-
-    fputs ("================================================================================\n", output_file);
 }
 
 
 void print_lines (Line lines_array[], int lines_amount)
 {
-    assert (lines_array != NULL && lines_amount > 0);
 
+    assert (lines_array != NULL && lines_amount > 0);
     for (int i = 0; i < lines_amount; i++)
     {
         //printf("%.*s", lines_array[i].length, lines_array[i].begin_ptr);
@@ -108,7 +106,7 @@ void trim_left (Text *MainText)
 
     for (int i = 0; i < (MainText->lines_amount); i++)
     {
-        while (*(MainText->lines_array[i].begin_ptr) == ' ')
+        while (*(MainText->lines_array[i].begin_ptr) == ' ' || *(MainText->lines_array[i].begin_ptr) == 9)
         {
             MainText->lines_array[i].begin_ptr++;
         }

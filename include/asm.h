@@ -32,7 +32,7 @@ enum OFFSETS
 enum SIZES
 {
     VERSION = 2,
-    MAX_LABELS = 10, 
+    MAX_LABELS = 100, 
     FILL_LABEL_FLAG = -1,
     MAX_CMD_LEN = 20,
 };
@@ -41,7 +41,7 @@ enum SIZES
 
 struct Label 
 {
-    char* name;
+    char name[MAX_CMD_LEN];
     int label_pos; 
 };
 
@@ -72,7 +72,9 @@ enum Registers
     RAX = 0,
     RBX,
     RCX,
-    RDX
+    RDX,
+    REX,
+    RFX,
 };
 
 
@@ -117,7 +119,7 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type);
 
 bool HandleRam (char* cmd_line);
 
-int ParseLabel (Assembler* AsmInfo,char* line);
+int ParseLabel (Assembler* AsmInfo, char* label, int label_len);
 
 int IsJmp (Assembler* AsmInfo, char* line);
 

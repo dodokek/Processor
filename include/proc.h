@@ -10,11 +10,15 @@
 //-----------------------------------------------
 enum ProcInfo
 {
-    MAX_BIN_SIZE = 100,
-    MAX_CMDS_AMOUNT = 50,
+    MAX_BIN_SIZE = 1000,
+    MAX_CMDS_AMOUNT = 1000,
     PROC_VERSION = 2,
     REG_AMOUNT = 4,
+<<<<<<< HEAD
     RAM_SIZE = 1000,
+=======
+    RAM_SIZE = 3000,
+>>>>>>> fixing-bug
 };
 //-----------------------------------------------
 
@@ -35,15 +39,15 @@ struct Processor
 
 void StartProc ();
 
-void ParseBinFile (Processor* self, char* code);
+void ParseBinFile (Processor* CpuInfo, char* code);
 
 void Execute (Processor* CpuInfo);
 
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo);
 
-void ProcCtor (Processor* self);
+void ProcCtor (Processor* CpuInfo);
 
-void ProcDtor (Processor* self);
+void ProcDtor (Processor* CpuInfo);
 
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val);
 
