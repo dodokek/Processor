@@ -6,7 +6,7 @@ void StartAsm()
 {
     Text RawCmd = {};
 
-    FILE* RawCmdFile = get_file ("../data/commands.asm", "r");
+    FILE* RawCmdFile = get_file ("../examples/quadratic.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCmd, RawCmdFile);
