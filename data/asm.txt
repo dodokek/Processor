@@ -1,6 +1,10 @@
 PUSH 1
-JMP beb
-PUSH 500
-beb:
+CALL bebra
 OUT
-HTL
+HLT
+
+bebra:
+PUSH 10
+PUSH 20
+ADD
+RET

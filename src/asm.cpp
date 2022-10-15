@@ -87,6 +87,7 @@ int LineToCommands (char* line, Assembler* AsmInfo)
     /*else*/
     {
         AsmInfo->commands[AsmInfo->cur_len] = GetCmdNum (line);
+
         return DEFAULT_CMD_OFFSET;
     }
 
@@ -99,17 +100,16 @@ int LineToCommands (char* line, Assembler* AsmInfo)
 
 int IsLabel (char* line, Assembler* AsmInfo)
 {
-    int last_char_indx = 0;
+    int label_len = 0;
     char tmp_line[MAX_CMD_LEN] = "";
-    sscanf (line, "%s%n", tmp_line, &last_char_indx);
+    sscanf (line, "%s%n", tmp_line, &label_len);
 
 
-    if (line[last_char_indx - 1] == ':') 
+    if (line[label_len - 1] == ':') 
     {
-    printf ("parsing label\n");
-        line[last_char_indx - 1] = '\0';
+        printf ("parsing label\n");
 
-        ParseLabel (AsmInfo, line);  
+        ParseLabel (AsmInfo, line, label_len);  
 
         return 1; 
     }
@@ -230,16 +230,20 @@ int FindLabel (Assembler* AsmInfo, char* label_name)
 }
 
 
-int ParseLabel (Assembler* AsmInfo, char* line)
+int ParseLabel (Assembler* AsmInfo, char* label, int label_len)
 {
-    printf ("Analysing label %s\n", line);
+    printf ("Analysing label %s\n", label);
+
+    char label_copy[MAX_CMD_LEN] = "";
+    strcpy (label_copy, label);
+    label_copy[label_len - 1] = '\0';
 
     for (int i = 0; i< AsmInfo->labels_amount; i++)
     {
-        if (strcmp (line, AsmInfo->labels[i].name) == 0) return ZERO_OFFSET;
+        if (strcmp (label_copy, AsmInfo->labels[i].name) == 0) return ZERO_OFFSET;
     }
 
-    AsmInfo->labels[AsmInfo->labels_amount].name = line;
+    strcpy (AsmInfo->labels[AsmInfo->labels_amount].name, label_copy);
 
     AsmInfo->labels[AsmInfo->labels_amount].label_pos = AsmInfo->cur_len;
 
@@ -258,9 +262,7 @@ bool HandleRam (char* cmd_line)
         char tmp_str[10] = ""; // '\0'
         int  cmd_len = 0;
         
-        // MAX_LEN
         sscanf (cmd_line, "%s%n", tmp_str, &cmd_len);
-        // ?
         *(cmd_line + cmd_len - 1) = ' ';
 
         return true;
@@ -307,10 +309,13 @@ int GetCmdNum (char* cmd)
     if (strcmp (cmd, #name) == 0) return num; \
     else
 
-    //------
+    //------------------
     #include "../include/codegen/cmds.h"
-    {return 0;}
-    //------
+    {
+        printf ("SIGILL\n");
+        return -1;
+    }
+    //------------------
 
     #undef DEF_CMD
 }

@@ -41,7 +41,7 @@ enum SIZES
 
 struct Label 
 {
-    char* name;
+    char name[MAX_CMD_LEN];
     int label_pos; 
 };
 
@@ -117,7 +117,7 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type);
 
 bool HandleRam (char* cmd_line);
 
-int ParseLabel (Assembler* AsmInfo,char* line);
+int ParseLabel (Assembler* AsmInfo, char* label, int label_len);
 
 int IsJmp (Assembler* AsmInfo, char* line);
 
