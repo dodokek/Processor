@@ -26,6 +26,6 @@ draw:
     PUSH 628
     PUSH rbx
 
-    qJAE cycle_draw
+    JAE cycle_draw
 
 RET

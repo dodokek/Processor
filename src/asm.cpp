@@ -65,6 +65,7 @@ void FillWorkData (Assembler* AsmInfo)
     AsmInfo->commands[SG_INDX1] = 'C';
     AsmInfo->commands[SG_INDX2] = 'U';
     AsmInfo->commands[SG_INDX3] = 'M';
+    
     *(int*)(AsmInfo->commands +CMD_AMT_INDX) = AsmInfo->cur_len;
 }
 
@@ -323,4 +324,14 @@ int GetCmdNum (char* cmd)
 
     #undef DEF_CMD
 }
+
+
+int main()
+{
+    StartAsm();
+
+    return 0;
+}
+
+
 

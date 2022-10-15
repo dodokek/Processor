@@ -21,10 +21,10 @@ void StartProc ()
 }
 
 
-void ParseBinFile (Processor* self, char* code)
+void ParseBinFile (Processor* CpuInfo, char* code)
 {
-    self->version = code[VERSION_INDX];
-    self->cmds_amount = *(int*)(code + CMD_AMT_INDX);
+    CpuInfo->version = code[VERSION_INDX];
+    CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
 
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
@@ -32,9 +32,9 @@ void ParseBinFile (Processor* self, char* code)
         printf ("Wrong signature!\n");
 
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
-            code[VERSION_INDX], self->cmds_amount);
+            code[VERSION_INDX], CpuInfo->cmds_amount);
 
-    self->cmds = code; 
+    CpuInfo->cmds = code; 
 }
 
 
@@ -123,29 +123,36 @@ void DrawMemory (Processor* CpuInfo)
 }
 
 
-void ProcCtor (Processor* self)
+void ProcCtor (Processor* CpuInfo)
 {
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;
 
-    memset (self->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
+    memset (CpuInfo->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
-    self->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
+    CpuInfo->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
 
-    self->CallStack = {};
-    StackCtor (&self->CallStack, 2);
+    CpuInfo->CallStack = {};
+    StackCtor (&CpuInfo->CallStack, 2);
 }
 
 
-void ProcDtor (Processor* self)
+void ProcDtor (Processor* CpuInfo)
 {
-    self->version = 0;
-    self->cmds_amount = 0;
-    self->cmds = nullptr;   
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;   
 
-    memset (self->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
+    memset (CpuInfo->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
 
-    FREE(self->Ram);
+    FREE(CpuInfo->Ram);
 }
 
+
+int main()
+{
+    StartProc();
+
+    return 0;
+}

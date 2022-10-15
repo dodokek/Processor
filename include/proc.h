@@ -35,15 +35,15 @@ struct Processor
 
 void StartProc ();
 
-void ParseBinFile (Processor* self, char* code);
+void ParseBinFile (Processor* CpuInfo, char* code);
 
 void Execute (Processor* CpuInfo);
 
 void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo);
 
-void ProcCtor (Processor* self);
+void ProcCtor (Processor* CpuInfo);
 
-void ProcDtor (Processor* self);
+void ProcDtor (Processor* CpuInfo);
 
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val);
 

@@ -7,7 +7,4 @@ int main ()
     StartAsm();
 
     StartProc();
-
-    //StartDisasm();
-
 }
