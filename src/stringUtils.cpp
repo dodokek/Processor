@@ -82,8 +82,6 @@ void write_result_in_file (Text *MainText, FILE* output_file)
         fputs (MainText->lines_array[i].begin_ptr, output_file);
         fputc ('\n', output_file);
     }
-
-    fputs ("================================================================================\n", output_file);
 }
 
 

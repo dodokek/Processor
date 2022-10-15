@@ -14,7 +14,7 @@ enum ProcInfo
     MAX_CMDS_AMOUNT = 1000,
     PROC_VERSION = 2,
     REG_AMOUNT = 4,
-    RAM_SIZE = 1000,
+    RAM_SIZE = 3000,
 };
 //-----------------------------------------------
 

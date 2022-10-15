@@ -102,12 +102,14 @@ void DrawMemory (Processor* CpuInfo)
     elem_t* ram_ptr = CpuInfo->Ram;
 
     putchar ('\n');
+    int lines = 30;
+    int cols  = 70;
 
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < lines; i++)
     {
-        for (int j = 0; j < 70; j++)
+        for (int j = 0; j < cols; j++)
         {
-            if (ram_ptr[i*10+j] == 0)
+            if (ram_ptr[i*cols+j] == 0)
             {
                 putchar ('.');
             }

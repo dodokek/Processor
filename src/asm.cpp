@@ -36,7 +36,6 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
     //Filling signatures and writing result in file
 
     FillWorkData (&AsmInfo);
-
     fwrite (AsmInfo.commands, sizeof (elem_t), AsmInfo.cur_len, CmdFile);
     
     // Destructor
@@ -136,11 +135,11 @@ int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
         *cmd_num |= ARG_MEM;
     }
 
-    int  tmp_imm = 0; 
+    elem_t  tmp_imm = 0; 
     char tmp_reg[MAX_CMD_LEN] = "";
 
-    if  (sscanf (cmd_line_copy, "%d + %s",  &tmp_imm,  tmp_reg)   == 2 || 
-         sscanf (cmd_line_copy, " %[^+] + %d", tmp_reg, &tmp_imm  ) == 2) 
+    if  (sscanf (cmd_line_copy, "%lg + %s",  &tmp_imm,  tmp_reg)   == 2 || 
+         sscanf (cmd_line_copy, " %[^+] + %lg", tmp_reg, &tmp_imm  ) == 2) 
     {
         printf ("Oh, we got + sign \n");
         
@@ -154,7 +153,7 @@ int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
                    AsmInfo->commands[AsmInfo->cur_len + MULTI_BYTE_OFFSET] = reg_number;
     }
 
-    else if (sscanf (cmd_line_copy, "%d", &tmp_imm))
+    else if (sscanf (cmd_line_copy, "%lg", &tmp_imm))
     {
         *cmd_num |= ARG_IMMED;
         
@@ -317,7 +316,7 @@ int GetCmdNum (char* cmd)
     //------------------
     #include "../include/codegen/cmds.h"
     {
-        printf ("=========SIGILL %d:==========\n", cmd);
+        printf ("=========SIGILL %d:==========\n", *cmd);
         return -1;
     }
     //------------------

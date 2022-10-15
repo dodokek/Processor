@@ -37,7 +37,7 @@ DEF_CMD(POP, 6,
         printf ("=======SIGIL=======\n");
     }
     
-    // if (*code & ARG_MEM) DrawMemory (CpuInfo);
+    if (*code & ARG_MEM) DrawMemory (CpuInfo);
 
     (*ip) += MULTI_BYTE_OFFSET;
 
@@ -190,10 +190,10 @@ DEF_CMD(JNE, 15,
 
 DEF_CMD(IN, 16, 
 {
-    int tmp_num;
+    double tmp_num;
 
     printf ("Enter the number: \n");
-    scanf ("%d", &tmp_num);
+    scanf ("%lg", &tmp_num);
 
     StackPush (self, tmp_num);
 })
@@ -232,4 +232,24 @@ DEF_CMD(MEOW, 21,
 DEF_CMD(INF_SOL, 22,
 {
     printf ("----Infinite amount of solutions------\n");
+})
+
+DEF_CMD(SIN, 23,
+{
+    StackPush (self, sin(StackPop(self)));
+})
+
+DEF_CMD(COS, 25,
+{
+    StackPush (self, cos(StackPop(self)));
+})
+
+DEF_CMD(ABS, 26, 
+{
+    StackPush (self, abs(StackPop(self)));
+})
+
+DEF_CMD(ROUND, 27, 
+{
+    StackPush (self, ceil(StackPop(self)));
 })
