@@ -5,7 +5,7 @@
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
-    exit(0);
+    return 1;
 })
 
 
@@ -236,11 +236,13 @@ DEF_CMD(INF_SOL, 22,
 
 DEF_CMD(SIN, 23,
 {
+    printf ("===Calculating sinus\n");
     StackPush (self, sin(StackPop(self)));
 })
 
 DEF_CMD(COS, 25,
 {
+    printf ("===Calculating cosinus\n");
     StackPush (self, cos(StackPop(self)));
 })
 

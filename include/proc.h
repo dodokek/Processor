@@ -26,7 +26,7 @@ struct Processor
     int cmds_amount; 
     const char* cmds;
 
-    elem_t Regs[4];
+    elem_t Regs[10];
     elem_t* Ram;
 
     Stack CallStack;
@@ -39,7 +39,7 @@ void ParseBinFile (Processor* CpuInfo, char* code);
 
 void Execute (Processor* CpuInfo);
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo);
+int ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo);
 
 void ProcCtor (Processor* CpuInfo);
 

@@ -2,7 +2,7 @@
 #include "../include/proc.h"
 
 
-void StartProc ()
+int main ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
     char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
@@ -46,14 +46,16 @@ void Execute (Processor* CpuInfo)
     for (int ip = WORK_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
     {
         printf ("Ip %3d: ", ip);
-        ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
+
+        int exit_flag = ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
+        if (exit_flag) return;
     }
 
     StackDtor (&MainStack);
 }
 
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
+int ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 {
     #define DEF_CMD(name, len, code) \
         case name:                   \
@@ -66,10 +68,12 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 
         default:
             printf ("SIGILL %d\n", *code);
-            break;
+            return 1;
     }
 
     #undef DEF_CMD
+
+    return 0;
 }
 
 
@@ -103,7 +107,7 @@ void DrawMemory (Processor* CpuInfo)
 
     putchar ('\n');
     int lines = 30;
-    int cols  = 70;
+    int cols  = 60;
 
     for (int i = 0; i < lines; i++)
     {
@@ -149,10 +153,3 @@ void ProcDtor (Processor* CpuInfo)
     FREE(CpuInfo->Ram);
 }
 
-
-int main()
-{
-    StartProc();
-
-    return 0;
-}

@@ -2,18 +2,18 @@
 #include "../include/asm.h"
 
 
-void StartAsm()
+int main()
 {
-    Text RawCmd = {};
+    Text RawCommands = {};
 
-    FILE* RawCmdFile = get_file ("../examples/quadratic.asm", "r");
+    FILE* RawCmdFile = get_file ("../examples/Circle.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
-    HandleTextStruct (&RawCmd, RawCmdFile);
+    HandleTextStruct (&RawCommands, RawCmdFile);
 
-    RawToBin (RawCmd, CmdFile);
+    RawToBin (RawCommands, CmdFile);  // translate raw commands to binary file
 
-    TextDestr (&RawCmd);
+    TextDestr (&RawCommands);
     fclose (RawCmdFile);
     fclose (CmdFile);
 }
@@ -21,7 +21,7 @@ void StartAsm()
 
 void RawToBin (Text RawCmd, FILE* CmdFile)
 {
-    Assembler AsmInfo = {};
+    Assembler AsmInfo = {0};
     AsmInfoCtor (&AsmInfo, &RawCmd);
 
     // Processing every line
@@ -31,7 +31,7 @@ void RawToBin (Text RawCmd, FILE* CmdFile)
     // Second lap to fill labels
 
     PrepareForSecondLap (&RawCmd, &AsmInfo);
-    HandleEachLine (&RawCmd, &AsmInfo);
+    HandleEachLine      (&RawCmd, &AsmInfo);
 
     //Filling signatures and writing result in file
 
@@ -72,7 +72,7 @@ void FillWorkData (Assembler* AsmInfo)
 
 int LineToCommands (char* line, Assembler* AsmInfo)
 {
-    if (*line == '/') return ZERO_OFFSET;  // Handling comments
+    if (*line == ';') return ZERO_OFFSET;  // Handling comments
 
     printf ("Ip %d commands %s: ", AsmInfo->cur_len, line);
     
@@ -105,7 +105,6 @@ int IsLabel (char* line, Assembler* AsmInfo)
     char tmp_line[MAX_CMD_LEN] = "";
     sscanf (line, "%s%n", tmp_line, &label_len);
 
-
     if (line[label_len - 1] == ':') 
     {
         printf ("parsing label\n");
@@ -129,20 +128,18 @@ int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation)
     char cmd_line_copy[MAX_CMD_LEN] = "";
     strcpy (cmd_line_copy, cur_cmd_line);
 
-
     if (HandleRam (cmd_line_copy))
     {
-        // printf ("handling ram\n");
         *cmd_num |= ARG_MEM;
     }
 
     elem_t  tmp_imm = 0; 
     char tmp_reg[MAX_CMD_LEN] = "";
 
-    if  (sscanf (cmd_line_copy, "%lg + %s",  &tmp_imm,  tmp_reg)   == 2 || 
-         sscanf (cmd_line_copy, " %[^+] + %lg", tmp_reg, &tmp_imm  ) == 2) 
+    if  (sscanf (cmd_line_copy, "%lg + %s",     &tmp_imm,  tmp_reg)   == 2 || 
+         sscanf (cmd_line_copy, " %[^+ ] + %lg", tmp_reg, &tmp_imm  ) == 2) 
     {
-        printf ("Oh, we got + sign \n");
+        printf ("We got + sign \n");
         
         *cmd_num |= ARG_IMMED;
         *cmd_num |= ARG_REG;
@@ -192,17 +189,15 @@ int IsJmp (Assembler* AsmInfo, char* line)
 
 int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
 {
-    cur_cmd_line++;
-    printf ("Parsing jump with type %d:\n", jmp_type);
-    printf ("Working with line %s \n", cur_cmd_line);
+    cur_cmd_line += BYTE_OFFSET; // Moving to label value
 
     char label_name[MAX_CMD_LEN] = "";
     
     sscanf (cur_cmd_line, "%s", label_name);
 
     printf (" Working with label %s\n", label_name);
-    int label_indx = FindLabel (AsmInfo, label_name);
 
+    int label_indx = FindLabel (AsmInfo, label_name);
     if (label_indx != -1) 
     {
         *(elem_t*)(AsmInfo->commands + AsmInfo->cur_len + 1) = AsmInfo->labels[label_indx].label_pos;
@@ -220,11 +215,11 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type)
 
 int FindLabel (Assembler* AsmInfo, char* label_name)
 { 
-    for (int i = 0; i < AsmInfo->labels_amount; i++)
+    for (int label_indx = 0; label_indx < AsmInfo->labels_amount; label_indx++)
     {
-        if (strcmp(label_name, AsmInfo->labels[i].name) == 0) 
+        if (strcmp(label_name, AsmInfo->labels[label_indx].name) == 0) 
         {
-            return i;
+            return label_indx;
         }
     }
     return -1;
@@ -243,7 +238,6 @@ int ParseLabel (Assembler* AsmInfo, char* label, int label_len)
         if (strcmp (label_copy, AsmInfo->labels[i].name) == 0) 
         {
             return ZERO_OFFSET;
-            printf ("HAVE SEEN LABEL BEFORE\n");
         }
     }
 
@@ -263,7 +257,7 @@ bool HandleRam (char* cmd_line)
     {
         *cmd_line = ' ';
 
-        char tmp_str[10] = ""; // '\0'
+        char tmp_str[10] = ""; 
         int  cmd_len = 0;
         
         sscanf (cmd_line, "%s%n", tmp_str, &cmd_len);
@@ -325,13 +319,6 @@ int GetCmdNum (char* cmd)
     #undef DEF_CMD
 }
 
-
-int main()
-{
-    StartAsm();
-
-    return 0;
-}
 
 
 

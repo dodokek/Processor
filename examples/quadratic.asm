@@ -13,14 +13,16 @@ main:
     PUSH 0
     JNE skip_linear
     CALL solve_linear
-    skip_linear:
+
+skip_linear:
 
 // b == 0 case
     PUSH rbx
     PUSH 0
     JNE skip_b_zero
     CALL solve_zero_b
-    skip_b_zero:
+
+skip_b_zero:
 
 // Find diskriminant
     CALL solvediskr
@@ -39,7 +41,6 @@ main:
     CALL calc_roots
 
     HLT
-
 
 solvediskr:
     PUSH rax
@@ -66,6 +67,7 @@ solvediskr:
     RET
 
 no_soll:
+
     PUSH rcx
     PUSH 0
     JE inf_sol
@@ -104,7 +106,6 @@ solve_linear:
     PUSH -1
     PUSH rcx
     MUL
-
 
     DIV
 
