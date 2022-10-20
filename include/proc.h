@@ -35,7 +35,7 @@ struct Processor
 
 void StartProc ();
 
-void ParseBinFile (Processor* CpuInfo, char* code);
+void ReadHeader (Processor* CpuInfo, char* code);
 
 void Execute (Processor* CpuInfo);
 
@@ -48,5 +48,7 @@ void ProcDtor (Processor* CpuInfo);
 elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val);
 
 void DrawMemory (Processor* CpuInfo);
+
+char* ReadCommandsFile ();
 
 #endif

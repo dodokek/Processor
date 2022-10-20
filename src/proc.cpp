@@ -4,32 +4,29 @@
 
 int main ()
 {
-    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
-    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
+    char* buffer = ReadCommandsFile ();
 
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
 
-    ParseBinFile (&CpuInfo, buffer); 
+    ReadHeader (&CpuInfo, buffer); 
     if (CpuInfo.version != PROC_VERSION) printf ("Wrong bin file!");
     Execute (&CpuInfo);
 
     FREE(buffer);
-    fclose (CmdFile);
     ProcDtor (&CpuInfo);
 }
 
 
-void ParseBinFile (Processor* CpuInfo, char* code)
+void ReadHeader (Processor* CpuInfo, char* code)
 {
-    CpuInfo->version = code[VERSION_INDX];
-    CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
-
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
         code[SG_INDX3] != 'M') 
         printf ("Wrong signature!\n");
+
+    CpuInfo->version = code[VERSION_INDX];
+    CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
 
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
             code[VERSION_INDX], CpuInfo->cmds_amount);
@@ -43,9 +40,9 @@ void Execute (Processor* CpuInfo)
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
 
-    for (int ip = WORK_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
+    for (int ip = SERVICE_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
     {
-        printf ("Ip %3d: ", ip);
+        // printf ("Ip %3d: ", ip);
 
         int exit_flag = ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
         if (exit_flag) return;
@@ -124,6 +121,19 @@ void DrawMemory (Processor* CpuInfo)
         }
         putchar ('\n');
     }
+}
+
+
+char* ReadCommandsFile ()
+{
+    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
+
+
+    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
+    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
+    fclose (CmdFile);
+
+    return buffer;
 }
 
 

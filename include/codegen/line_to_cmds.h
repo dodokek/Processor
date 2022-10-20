@@ -1,9 +1,9 @@
 DEF_LINE("PUSH", PUSH_LEN, 
-    ParseCmd (AsmInfo, line + PUSH_LEN + 1, PUSH)
+    HandlePushPop (AsmInfo, line + PUSH_LEN + 1, PUSH)
 )
 
 DEF_LINE("POP", POP_LEN, 
-    ParseCmd (AsmInfo, line + POP_LEN + 1, POP)
+    HandlePushPop (AsmInfo, line + POP_LEN + 1, POP)
 )
 
 DEF_LINE("JMP", JMP_LEN, 

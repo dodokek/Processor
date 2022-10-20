@@ -8,7 +8,7 @@ main:
     POP rbx
     POP rax
 
-// a == 0 case
+; a == 0 case
     PUSH rax
     PUSH 0
     JNE skip_linear
@@ -16,7 +16,7 @@ main:
 
 skip_linear:
 
-// b == 0 case
+; b == 0 case
     PUSH rbx
     PUSH 0
     JNE skip_b_zero
@@ -24,20 +24,20 @@ skip_linear:
 
 skip_b_zero:
 
-// Find diskriminant
+; Find diskriminant
     CALL solvediskr
 
-// Diskr < 0 case
+; Diskr < 0 case
     PUSH rdx   
     PUSH 0
     JA no_soll
 
-// Diskr = 0 case
+; Diskr = 0 case
     PUSH rdx
     PUSH 0
     JE nulldiskr
 
-// Diskr > 0 case
+; Diskr > 0 case
     CALL calc_roots
 
     HLT
@@ -91,12 +91,12 @@ nulldiskr:
     HLT
 
 solve_linear:
-    // Check b == 0
+    ; Check b == 0
     PUSH rbx
     PUSH 0
     JE no_soll
-    //------------
-    //Check c == 0
+    ;------------
+    ;Check c == 0
     PUSH rcx
     PUSH 0
     JE inf_sol
@@ -113,11 +113,11 @@ solve_linear:
     HLT
 
 solve_zero_b:
-    //Check  if c < 0
+    ;Check  if c < 0
     PUSH rcx
     PUSH 0
     JE nulldiskr
-    //---------------
+    ;---------------
     PUSH rax
 
     PUSH rcx
@@ -142,40 +142,40 @@ solve_zero_b:
 
 calc_roots:
     MEOW
-    // 2a
+    ; 2a
     PUSH rax
     PUSH 2
     MUL
     POP [1]
-    // -b
+    ; -b
     PUSH rbx
     PUSH -1
     MUL
     POP [2]
-    // sqr(diskr)
+    ; sqr(diskr)
     PUSH rdx
     SQR
     POP [3]
-    // Calc first root
+    ; Calc first root
     PUSH [1]
 
     PUSH [2]
     PUSH [3]
     ADD
     DIV
-    // First root
+    ; First root
     POP [4]
 
-    // Calc second root
+    ; Calc second root
     PUSH [1]
 
     PUSH [3]
     PUSH [2]
     SUB
     DIV
-    // Second root
+    ; Second root
     POP [5]
-    // OUtput
+    ; OUtput
     PUSH [4]
     PUSH [5]
     OUT

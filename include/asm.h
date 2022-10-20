@@ -13,7 +13,7 @@ enum LEN
     JMP_LEN = 3,
     J_LEN = 1,
     JMP_LEN_SHORT = 2,
-    WORK_DATA_LEN = 8,
+    SERVICE_DATA_LEN = 8,
 };
 
 
@@ -80,11 +80,11 @@ enum Registers
 
 enum ParseData
 {
-    VERSION_INDX = 0,
-    CMD_AMT_INDX = 1,
-    SG_INDX1 = 5,
+    SG_INDX1 = 0,
     SG_INDX2,
     SG_INDX3,
+    VERSION_INDX = 3,
+    CMD_AMT_INDX = 4,
 };
 
 
@@ -109,7 +109,7 @@ int GetCmdNum (char* cmd);
 
 void StartAsm();
 
-int ParseCmd (Assembler* AsmInfo, char* cur_cmd_line, int operation);
+int HandlePushPop (Assembler* AsmInfo, char* cur_cmd_line, int cmd_type);
 
 int GetRegNum (char* reg);
 
@@ -119,13 +119,13 @@ int ParseJmp (Assembler* AsmInfo, char* cur_cmd_line, int jmp_type);
 
 bool HandleRam (char* cmd_line);
 
-int ParseLabel (Assembler* AsmInfo, char* label, int label_len);
+int InsertLabel (Assembler* AsmInfo, char* label, int label_len);
 
 int IsJmp (Assembler* AsmInfo, char* line);
 
 void FillMissingLabels (Assembler* AsmInfo);
 
-void FillWorkData (Assembler* AsmInfo);
+void WriteProgramHeader (Assembler* AsmInfo);
 
 void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd);
 
@@ -133,9 +133,9 @@ void AsmInfoDtor (Assembler* AsmInfo);
 
 int FindLabel (Assembler* AsmInfo, char* label_name);
 
-void HandleEachLine (Text* RawCmd, Assembler* AsmInfo);
+void EachLineToBin (Text* RawCmd, Assembler* AsmInfo);
 
-void PrepareForSecondLap (Text* RawCmd, Assembler* AsmInfo);
+void CmdsToZero (Text* RawCmd, Assembler* AsmInfo);
 
 int IsLabel (char* line, Assembler* AsmInfo);
 
