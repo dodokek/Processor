@@ -17,13 +17,13 @@ DISAS = disasm
 
 # dirs
 
-
-
-
 $(ASM)     :  $(ASM).o $(STACK).o $(STR).o $(FILE).o 
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(PROC)     : $(PROC).o  $(STACK).o $(STR).o $(FILE).o
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(DISAS)    : $(DISAS).o  $(STACK).o $(STR).o $(FILE).o
 	$(CC) $(CFLAGS) $^ -o $@
    
 
@@ -40,6 +40,10 @@ $(STR).o  : $(STR).cpp
 	$(CC) $(CFLAGS) $< -c  
 
 $(PROC).o : $(PROC).cpp
+	$(CC) $(CFLAGS) $< -c
+
+
+$(DISAS).o : $(DISAS).cpp
 	$(CC) $(CFLAGS) $< -c
 
 clean:

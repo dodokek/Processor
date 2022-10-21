@@ -6,7 +6,7 @@ int main()
 {
     Text RawCommands = {};
 
-    FILE* RawCmdFile = get_file ("../examples/Circle.asm", "r");
+    FILE* RawCmdFile = get_file ("../examples/FactRecurs.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCommands, RawCmdFile); // read the file with commands
