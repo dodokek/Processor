@@ -1,44 +1,26 @@
-Ip 8: 16 
-Ip 9:  6 
-POP 0 2
-Ip 19:  1 
-PUSH 1 0
-Ip 29:  6 
-POP 0 0
-Ip 39: 17 
-CALL 61
-Ip 49:  1 
-PUSH 0 0
-Ip 59:  7 
-Ip 60:  0 
-Ip 61:  1 
-PUSH 0 2
-Ip 71:  1 
-PUSH 0 0
-Ip 81:  2 
-Ip 82:  6 
-POP 0 0
-Ip 92:  1 
-PUSH 0 2
-Ip 102:  1 
-PUSH -1 0
-Ip 112:  3 
-Ip 113:  6 
-POP 0 2
-Ip 123:  1 
-PUSH 1 0
-Ip 133:  1 
-PUSH 0 2
-Ip 143: 10 
-Ip 144:  0 
-Ip 145:  0 
-Ip 146:  0 
-Ip 147:  0 
-Ip 148:  0 
-Ip 149:  0 
-Ip 150:  4 
-Ip 151:  0 
-Ip 152:  0 
-Ip 153: 17 
-CALL 61
-Ip 163: 18 
+Ip 8: IN 
+Ip 9: POP _value_: 0 _register_ 2
+Ip 18: MUL 
+Ip 19: PUSH _value_: 1 _register_ 0
+Ip 29: POP _value_: 0 _register_ 0
+Ip 39: CALL _value_: 61 _register_ 0
+Ip 49: PUSH _value_: 0 _register_ 0
+Ip 59: OUT 
+Ip 60: HLT 
+Ip 61: PUSH _value_: 0 _register_ 2
+Ip 70: MUL 
+Ip 71: PUSH _value_: 0 _register_ 0
+Ip 81: MUL 
+Ip 82: POP _value_: 0 _register_ 0
+Ip 92: PUSH _value_: 0 _register_ 2
+Ip 101: MUL 
+Ip 102: PUSH _value_: -1 _register_ 0
+Ip 112: ADD 
+Ip 113: POP _value_: 0 _register_ 2
+Ip 122: MUL 
+Ip 123: PUSH _value_: 1 _register_ 0
+Ip 133: PUSH _value_: 0 _register_ 2
+Ip 142: MUL 
+Ip 143: JB _value_: 163 _register_ 0
+Ip 153: CALL _value_: 61 _register_ 0
+Ip 163: RET 

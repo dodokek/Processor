@@ -210,7 +210,7 @@ int IsJmp (Assembler* AsmInfo, char* line)
 {
     int cmd_len = 0;
 
-    #define DEF_CMD(name, id, code)  \
+    #define DEF_CMD(name, id, offset, code)  \
         cmd_len = strlen (#name);    \
         if (strncmp (#name,  line, cmd_len) == 0) return ParseJmp (AsmInfo, line + cmd_len, name);  
     
@@ -305,7 +305,7 @@ int GetRegNum (char* reg)
 int GetCmdNum (char* cmd)
 {
     printf ("Getting number of line %s\n\n", cmd);
-    #define DEF_CMD(name, num, code) \
+    #define DEF_CMD(name, num, offset, code) \
     if (strcmp (cmd, #name) == 0) return num; \
     else
 

@@ -2,14 +2,14 @@
 #define LABLE_POS int(*(elem_t*)(code + 1) - 1)
 
 
-DEF_CMD(HLT, 0,
+DEF_CMD(HLT, 0, ZERO_OFFSET, 
 {
     printf ("End of commands\n");
     return 1;
 })
 
 
-DEF_CMD(PUSH, 1,
+DEF_CMD(PUSH, 1, MULTI_BYTE_OFFSET, 
 {
     elem_t value = 0;
     elem_t* arg = GetArg (*code, code, CpuInfo, &value);
@@ -25,7 +25,7 @@ DEF_CMD(PUSH, 1,
 })
 
 
-DEF_CMD(POP, 6,
+DEF_CMD(POP, 6, MULTI_BYTE_OFFSET,
 {
     elem_t value = 0;
     elem_t* arg = GetArg (*code, code, CpuInfo, &value);
@@ -44,35 +44,35 @@ DEF_CMD(POP, 6,
 })
 
 
-DEF_CMD(MUL, 2,
+DEF_CMD(MUL, 2, ZERO_OFFSET,
 {
     // printf ("Multiplying\n");
     StackPush (self, StackPop (self) * StackPop (self));
 })
 
-DEF_CMD(ADD, 3,
+DEF_CMD(ADD, 3, ZERO_OFFSET,
 {
     // printf ("Adding\n");
     StackPush (self, StackPop(self) + StackPop(self));
 })
 
-DEF_CMD(SUB, 4,
+DEF_CMD(SUB, 4, ZERO_OFFSET,
 {
     StackPush (self, StackPop (self) - StackPop (self));
 })
 
-DEF_CMD(DIV, 5,
+DEF_CMD(DIV, 5, ZERO_OFFSET,
 {
     StackPush (self, StackPop(self) / StackPop(self));
 })
 
-DEF_CMD(OUT, 7, 
+DEF_CMD(OUT, 7, ZERO_OFFSET,
 {
     // StackDump (self);        
     printf ("------STACK OUT: %lg-------\n", StackPop (self));
 })
 
-DEF_CMD(DMP, 8, 
+DEF_CMD(DMP, 8, ZERO_OFFSET,
 {
     printf ("\n ----- BEG OF DUMP ------ \n");
 
@@ -104,13 +104,13 @@ DEF_CMD(DMP, 8,
     printf ("\n\n ----- END OF DUMP ------ \n\n");
 })
 
-DEF_CMD(JMP, 9, 
+DEF_CMD(JMP, 9, MULTI_BYTE_OFFSET,
 {
     *ip = LABLE_POS;
     // printf ("Jumping to %d\n", *ip);
 })
 
-DEF_CMD(JB, 10,
+DEF_CMD(JB, 10, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) < StackPop(self))
     {
@@ -123,7 +123,7 @@ DEF_CMD(JB, 10,
     }
 })
 
-DEF_CMD(JBE, 11,
+DEF_CMD(JBE, 11, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) <= StackPop(self))
     {
@@ -136,7 +136,7 @@ DEF_CMD(JBE, 11,
     }
 })
 
-DEF_CMD(JA, 12, 
+DEF_CMD(JA, 12, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) > StackPop(self))
     {
@@ -149,7 +149,7 @@ DEF_CMD(JA, 12,
     }
 })
 
-DEF_CMD(JAE, 13, 
+DEF_CMD(JAE, 13, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) >= StackPop(self))
         {
@@ -162,7 +162,7 @@ DEF_CMD(JAE, 13,
         }  
 })
 
-DEF_CMD(JE, 14, 
+DEF_CMD(JE, 14, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) == StackPop(self))
     {
@@ -175,7 +175,7 @@ DEF_CMD(JE, 14,
     }   
 })
 
-DEF_CMD(JNE, 15, 
+DEF_CMD(JNE, 15, MULTI_BYTE_OFFSET,
 {
     if (StackPop(self) != StackPop(self))
     {
@@ -188,7 +188,7 @@ DEF_CMD(JNE, 15,
     } 
 })
 
-DEF_CMD(IN, 16, 
+DEF_CMD(IN, 16, ZERO_OFFSET,
 {
     double tmp_num;
 
@@ -199,7 +199,7 @@ DEF_CMD(IN, 16,
 })
 
 
-DEF_CMD(CALL, 17, 
+DEF_CMD(CALL, 17, MULTI_BYTE_OFFSET,
 {
     StackPush (&CpuInfo->CallStack, *ip + MULTI_BYTE_OFFSET);
     *ip = LABLE_POS;
@@ -207,51 +207,51 @@ DEF_CMD(CALL, 17,
 })
 
 
-DEF_CMD(RET, 18, 
+DEF_CMD(RET, 18, ZERO_OFFSET,
 {
     *ip = StackPop(&CpuInfo->CallStack);
     // printf ("Returning to %d\n", *ip);
 })
 
-DEF_CMD(SQR, 19, 
+DEF_CMD(SQR, 19, ZERO_OFFSET,
 {
     // printf ("Getting root\n");
     StackPush(self, sqrt(StackPop(self)));
 })
 
-DEF_CMD(ZEROSOL, 20, 
+DEF_CMD(ZEROSOL, 20, ZERO_OFFSET,
 {
     printf ("----Equation has zero solutions-----\n");
 })
 
-DEF_CMD(MEOW, 21, 
+DEF_CMD(MEOW, 21, ZERO_OFFSET,
 {
     printf ("Meow meow\n");
 })
 
-DEF_CMD(INF_SOL, 22,
+DEF_CMD(INF_SOL, 22, ZERO_OFFSET,
 {
     printf ("----Infinite amount of solutions------\n");
 })
 
-DEF_CMD(SIN, 23,
+DEF_CMD(SIN, 23, ZERO_OFFSET,
 {
     // printf ("===Calculating sinus\n");
     StackPush (self, sin(StackPop(self)));
 })
 
-DEF_CMD(COS, 25,
+DEF_CMD(COS, 25, ZERO_OFFSET, 
 {
     // printf ("===Calculating cosinus\n");
     StackPush (self, cos(StackPop(self)));
 })
 
-DEF_CMD(ABS, 26, 
+DEF_CMD(ABS, 26, ZERO_OFFSET, 
 {
     StackPush (self, abs(StackPop(self)));
 })
 
-DEF_CMD(ROUND, 27, 
+DEF_CMD(ROUND, 27, ZERO_OFFSET, 
 {
     StackPush (self, ceil(StackPop(self)));
 })

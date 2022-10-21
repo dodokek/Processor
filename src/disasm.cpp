@@ -19,23 +19,26 @@ void StartDisasm()
 
     for (int ip = SERVICE_DATA_LEN; ip < CpuInfo.cmds_amount; ip++)
     {
-        fprintf (DisasFile, "Ip %d: %2d \n", ip, CpuInfo.cmds[ip]& CMD_BITMASK);
+        #define DEF_CMD(name, id, offset, code)                               \
+        if ((CpuInfo.cmds[ip] & CMD_BITMASK) == id)                           \
+        {                                                                     \
+            fprintf (DisasFile, "Ip %d: %s ", ip, #name);                     \
+            if (offset == MULTI_BYTE_OFFSET)                                  \
+            {                                                                 \
+                fprintf (DisasFile, "_value_: %lg _register_ %d\n",           \
+                       *(elem_t*)(CpuInfo.cmds + ip + BYTE_OFFSET),           \
+                       *(CpuInfo.cmds + ip + sizeof(elem_t) + BYTE_OFFSET));  \
+            }                                                                 \
+            else                                                              \
+            {                                                                 \
+                fputc ('\n', DisasFile);                                      \
+            }                                                                 \
+            ip += offset;                                                     \
+        }                                                                     \
 
-        if ((CpuInfo.cmds[ip] & CMD_BITMASK) == PUSH)
-        {
-            fprintf (DisasFile, "%s %lg %d\n", "PUSH", *(elem_t*)(CpuInfo.cmds + ip + BYTE_OFFSET), *(CpuInfo.cmds + ip + sizeof(elem_t) + BYTE_OFFSET));
-            ip += MULTI_BYTE_OFFSET;
-        }
-        if ((CpuInfo.cmds[ip] & CMD_BITMASK) == POP)
-        {
-            fprintf (DisasFile, "%s %lg %d\n", "POP", *(elem_t*)(CpuInfo.cmds + ip + BYTE_OFFSET), *(CpuInfo.cmds + ip + sizeof(elem_t) + BYTE_OFFSET));
-            ip += MULTI_BYTE_OFFSET;
-        }
-        if ((CpuInfo.cmds[ip] & CMD_BITMASK) == CALL)
-        {
-            fprintf (DisasFile, "%s %lg\n", "CALL", *(elem_t*)(CpuInfo.cmds + ip + BYTE_OFFSET));
-            ip += MULTI_BYTE_OFFSET;
-        }
+        #include "../include/codegen/cmds.h"
+
+        #undef DEF_CMD
     }
 
 
