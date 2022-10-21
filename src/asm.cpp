@@ -6,7 +6,7 @@ int main()
 {
     Text RawCommands = {};
 
-    FILE* RawCmdFile = get_file ("../examples/FactRecurs.asm", "r");
+    FILE* RawCmdFile = get_file ("../examples/Circle.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCommands, RawCmdFile); // read the file with commands
@@ -64,7 +64,7 @@ void WriteProgramHeader (Assembler* AsmInfo)
     AsmInfo->commands[SG_INDX1] = 'C';
     AsmInfo->commands[SG_INDX2] = 'U';
     AsmInfo->commands[SG_INDX3] = 'M';
-    AsmInfo->commands[VERSION_INDX] = VERSION;                 //VERSION TO COMPARE WITH CPU VERSION
+    AsmInfo->commands[VERSION_INDX] = VERSION; //VERSION TO COMPARE WITH CPU VERSION
     
     *(int*)(AsmInfo->commands + CMD_AMT_INDX) = AsmInfo->cur_len;
 }

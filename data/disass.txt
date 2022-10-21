@@ -1,26 +1,55 @@
-Ip 8: IN 
-Ip 9: POP _value_: 0 _register_ 2
-Ip 18: MUL 
-Ip 19: PUSH _value_: 1 _register_ 0
-Ip 29: POP _value_: 0 _register_ 0
-Ip 39: CALL _value_: 61 _register_ 0
-Ip 49: PUSH _value_: 0 _register_ 0
-Ip 59: OUT 
-Ip 60: HLT 
-Ip 61: PUSH _value_: 0 _register_ 2
-Ip 70: MUL 
-Ip 71: PUSH _value_: 0 _register_ 0
-Ip 81: MUL 
-Ip 82: POP _value_: 0 _register_ 0
-Ip 92: PUSH _value_: 0 _register_ 2
-Ip 101: MUL 
-Ip 102: PUSH _value_: -1 _register_ 0
-Ip 112: ADD 
-Ip 113: POP _value_: 0 _register_ 2
-Ip 122: MUL 
-Ip 123: PUSH _value_: 1 _register_ 0
-Ip 133: PUSH _value_: 0 _register_ 2
-Ip 142: MUL 
-Ip 143: JB _value_: 163 _register_ 0
-Ip 153: CALL _value_: 61 _register_ 0
-Ip 163: RET 
+Ip 8: PUSH _value_: 100 _register_ 0
+Ip 18: POP _value_: 0 _register_ 0
+Ip 28: PUSH _value_: 0 _register_ 0
+Ip 38: POP _value_: 0 _register_ 1
+Ip 48: PUSH _value_: 7 _register_ 0
+Ip 58: POP _value_: 0 _register_ 4
+Ip 67: SUB 
+Ip 68: PUSH _value_: 20 _register_ 0
+Ip 78: POP _value_: 0 _register_ 5
+Ip 87: DIV 
+Ip 88: PUSH _value_: 10 _register_ 0
+Ip 98: POP _value_: 0 _register_ 6
+Ip 108: CALL _value_: 119 _register_ 0
+Ip 118: HLT 
+Ip 119: PUSH _value_: 0 _register_ 1
+Ip 129: SIN 
+Ip 130: PUSH _value_: 0 _register_ 4
+Ip 139: SUB 
+Ip 140: MUL 
+Ip 141: ROUND 
+Ip 142: PUSH _value_: 0 _register_ 6
+Ip 151: POP _value_: 8.85514e-320 _register_ 0
+Ip 161: HLT 
+Ip 162: MUL 
+Ip 163: PUSH _value_: 0 _register_ 1
+Ip 173: COS 
+Ip 174: PUSH _value_: 0 _register_ 4
+Ip 183: SUB 
+Ip 184: MUL 
+Ip 185: PUSH _value_: 2 _register_ 0
+Ip 195: MUL 
+Ip 196: ROUND 
+Ip 197: PUSH _value_: 0 _register_ 5
+Ip 206: DIV 
+Ip 207: ADD 
+Ip 208: POP _value_: 0 _register_ 3
+Ip 217: ADD 
+Ip 218: PUSH _value_: 60 _register_ 0
+Ip 228: PUSH _value_: 0 _register_ 2
+Ip 237: MUL 
+Ip 238: MUL 
+Ip 239: PUSH _value_: 0 _register_ 3
+Ip 248: ADD 
+Ip 249: ADD 
+Ip 250: POP _value_: 0 _register_ 0
+Ip 260: PUSH _value_: 0 _register_ 0
+Ip 270: POP _value_: 0 _register_ 0
+Ip 280: PUSH _value_: 0 _register_ 1
+Ip 290: PUSH _value_: 0.05 _register_ 0
+Ip 300: ADD 
+Ip 301: POP _value_: 0 _register_ 1
+Ip 311: PUSH _value_: 0 _register_ 1
+Ip 321: PUSH _value_: 6.18 _register_ 0
+Ip 331: JA _value_: 119 _register_ 0
+Ip 341: RET 
