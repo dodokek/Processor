@@ -5,7 +5,11 @@
 DEF_CMD(HLT, 0,
 {
     printf ("End of commands\n");
+<<<<<<< HEAD
     exit(0);
+=======
+    return 1;
+>>>>>>> fixing-bug
 })
 
 
@@ -29,7 +33,11 @@ DEF_CMD(POP, 6,
 {
     elem_t value = 0;
     elem_t* arg = GetArg (*code, code, CpuInfo, &value);
+<<<<<<< HEAD
     printf ("Popping\n");    
+=======
+    // printf ("Popping\n");    
+>>>>>>> fixing-bug
 
     if (arg) *arg = StackPop (self);  
     else
@@ -37,7 +45,11 @@ DEF_CMD(POP, 6,
         printf ("=======SIGIL=======\n");
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> fixing-bug
 =======
     
 >>>>>>> fixing-bug
@@ -50,13 +62,17 @@ DEF_CMD(POP, 6,
 
 DEF_CMD(MUL, 2,
 {
+<<<<<<< HEAD
     printf ("Multiplying\n");
+=======
+    // printf ("Multiplying\n");
+>>>>>>> fixing-bug
     StackPush (self, StackPop (self) * StackPop (self));
 })
 
 DEF_CMD(ADD, 3,
 {
-    printf ("Adding\n");
+    // printf ("Adding\n");
     StackPush (self, StackPop(self) + StackPop(self));
 })
 
@@ -111,7 +127,7 @@ DEF_CMD(DMP, 8,
 DEF_CMD(JMP, 9, 
 {
     *ip = LABLE_POS;
-    printf ("Jumping to %d\n", *ip);
+    // printf ("Jumping to %d\n", *ip);
 })
 
 DEF_CMD(JB, 10,
@@ -119,7 +135,7 @@ DEF_CMD(JB, 10,
     if (StackPop(self) < StackPop(self))
     {
         *ip = LABLE_POS;
-        printf ("Jumping to %d\n", *ip);
+        // printf ("Jumping to %d\n", *ip);
     }
     else
     {
@@ -132,7 +148,7 @@ DEF_CMD(JBE, 11,
     if (StackPop(self) <= StackPop(self))
     {
         *ip = LABLE_POS;
-        printf ("Jumping to %d\n", *ip);
+        // printf ("Jumping to %d\n", *ip);
     }
     else
     {
@@ -145,7 +161,7 @@ DEF_CMD(JA, 12,
     if (StackPop(self) > StackPop(self))
     {
         *ip = LABLE_POS;
-        printf ("Jumping to %d\n", *ip);
+        // printf ("Jumping to %d\n", *ip);
     }
     else
     {
@@ -158,7 +174,7 @@ DEF_CMD(JAE, 13,
     if (StackPop(self) >= StackPop(self))
         {
             *ip = LABLE_POS;
-            printf ("Jumping to %d\n", *ip);
+            // printf ("Jumping to %d\n", *ip);
         }
         else
         {
@@ -171,7 +187,7 @@ DEF_CMD(JE, 14,
     if (StackPop(self) == StackPop(self))
     {
         *ip = LABLE_POS;
-        printf ("Jumping to %d\n", *ip);
+        // printf ("Jumping to %d\n", *ip);
     }
     else
     {
@@ -184,7 +200,7 @@ DEF_CMD(JNE, 15,
     if (StackPop(self) != StackPop(self))
     {
         *ip = LABLE_POS;
-        printf ("Jumping to %d\n", *ip);
+        // printf ("Jumping to %d\n", *ip);
     }
     else
     {
@@ -207,19 +223,23 @@ DEF_CMD(CALL, 17,
 {
     StackPush (&CpuInfo->CallStack, *ip + MULTI_BYTE_OFFSET + 1);
     *ip = LABLE_POS;
-    printf ("Calling ip %d\n", *ip);
+    // printf ("Calling ip %d\n", *ip);
 })
 
 
 DEF_CMD(RET, 18, 
 {
     *ip = StackPop(&CpuInfo->CallStack);
-    printf ("Returning to %d\n", *ip);
+    // printf ("Returning to %d\n", *ip);
 })
 
 DEF_CMD(SQR, 19, 
 {
+<<<<<<< HEAD
     printf ("Getting root\n");
+=======
+    // printf ("Getting root\n");
+>>>>>>> fixing-bug
     StackPush(self, sqrt(StackPop(self)));
 })
 
@@ -240,11 +260,19 @@ DEF_CMD(INF_SOL, 22,
 
 DEF_CMD(SIN, 23,
 {
+<<<<<<< HEAD
+=======
+    // printf ("===Calculating sinus\n");
+>>>>>>> fixing-bug
     StackPush (self, sin(StackPop(self)));
 })
 
 DEF_CMD(COS, 25,
 {
+<<<<<<< HEAD
+=======
+    // printf ("===Calculating cosinus\n");
+>>>>>>> fixing-bug
     StackPush (self, cos(StackPop(self)));
 })
 

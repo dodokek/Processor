@@ -15,7 +15,7 @@ void StartDisasm()
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
 
-    ParseBinFile (&CpuInfo, buffer); 
+    ReadHeader (&CpuInfo, buffer); 
     if (CpuInfo.version != PROC_VERSION) printf ("Wrong bin file!");
     
     for (int ip = WORK_DATA_LEN; ip < CpuInfo.cmds_amount; ip++)

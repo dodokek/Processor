@@ -2,38 +2,57 @@
 #include "../include/proc.h"
 
 
+<<<<<<< HEAD
 void StartProc ()
 {
     FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
     char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
     fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
+=======
+int main ()
+{
+    char* buffer = ReadCommandsFile ();
+>>>>>>> fixing-bug
 
     Processor CpuInfo = {};
     ProcCtor (&CpuInfo);
 
-    ParseBinFile (&CpuInfo, buffer); 
+    ReadHeader (&CpuInfo, buffer); 
     if (CpuInfo.version != PROC_VERSION) printf ("Wrong bin file!");
     Execute (&CpuInfo);
 
     FREE(buffer);
-    fclose (CmdFile);
     ProcDtor (&CpuInfo);
 }
 
 
+<<<<<<< HEAD
 void ParseBinFile (Processor* CpuInfo, char* code)
 {
     CpuInfo->version = code[VERSION_INDX];
     CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
 
+=======
+void ReadHeader (Processor* CpuInfo, char* code)
+{
+>>>>>>> fixing-bug
     if (code[SG_INDX1] != 'C' || 
         code[SG_INDX2] != 'U' || 
         code[SG_INDX3] != 'M') 
         printf ("Wrong signature!\n");
 
+<<<<<<< HEAD
     printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
             code[VERSION_INDX], CpuInfo->cmds_amount);
 
+=======
+    CpuInfo->version = code[VERSION_INDX];
+    CpuInfo->cmds_amount = *(int*)(code + CMD_AMT_INDX);
+
+    printf ("Cur Version: %d, Curr Cmd Amount: %d \n\n", 
+            code[VERSION_INDX], CpuInfo->cmds_amount);
+
+>>>>>>> fixing-bug
     CpuInfo->cmds = code; 
 }
 
@@ -43,17 +62,19 @@ void Execute (Processor* CpuInfo)
     Stack MainStack = {};
     StackCtor (&MainStack, 2); 
 
-    for (int ip = WORK_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
+    for (int ip = SERVICE_DATA_LEN; ip < CpuInfo->cmds_amount; ip++)
     {
-        printf ("Ip %3d: ", ip);
-        ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
+        // printf ("Ip %3d: ", ip);
+
+        int exit_flag = ProcessCommand (&MainStack, CpuInfo->cmds + ip, &ip, CpuInfo);
+        if (exit_flag) return;
     }
 
     StackDtor (&MainStack);
 }
 
 
-void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
+int ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 {
     #define DEF_CMD(name, len, code) \
         case name:                   \
@@ -66,10 +87,12 @@ void ProcessCommand (Stack* self, const char* code, int* ip, Processor* CpuInfo)
 
         default:
             printf ("SIGILL %d\n", *code);
-            break;
+            return 1;
     }
 
     #undef DEF_CMD
+
+    return 0;
 }
 
 
@@ -99,6 +122,7 @@ elem_t* GetArg (int cmd, const char* code, Processor* CpuInfo, elem_t* val)
 
 void DrawMemory (Processor* CpuInfo)
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
     elem_t* ram_ptr = CpuInfo->Ram;
 
@@ -125,12 +149,18 @@ void DrawMemory (Processor* CpuInfo)
 void ProcCtor (Processor* self)
 =======
 >>>>>>> fixing-bug
+=======
+>>>>>>> fixing-bug
 {
     elem_t* ram_ptr = CpuInfo->Ram;
 
     putchar ('\n');
     int lines = 30;
+<<<<<<< HEAD
     int cols  = 70;
+=======
+    int cols  = 60;
+>>>>>>> fixing-bug
 
     for (int i = 0; i < lines; i++)
     {
@@ -150,6 +180,7 @@ void ProcCtor (Processor* self)
 }
 
 
+<<<<<<< HEAD
 void ProcCtor (Processor* CpuInfo)
 {
     CpuInfo->version = 0;
@@ -158,10 +189,48 @@ void ProcCtor (Processor* CpuInfo)
 
     memset (CpuInfo->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
+=======
+char* ReadCommandsFile ()
+{
+    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
+
+
+    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
+    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
+    fclose (CmdFile);
+
+    return buffer;
+}
+
+
+void ProcCtor (Processor* CpuInfo)
+{
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;
+
+    memset (CpuInfo->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
+
+>>>>>>> fixing-bug
     CpuInfo->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
 
     CpuInfo->CallStack = {};
     StackCtor (&CpuInfo->CallStack, 2);
+<<<<<<< HEAD
+=======
+}
+
+
+void ProcDtor (Processor* CpuInfo)
+{
+    CpuInfo->version = 0;
+    CpuInfo->cmds_amount = 0;
+    CpuInfo->cmds = nullptr;   
+
+    memset (CpuInfo->Regs, -1, sizeof(elem_t) * REG_AMOUNT); 
+
+    FREE(CpuInfo->Ram);
+>>>>>>> fixing-bug
 }
 
 
