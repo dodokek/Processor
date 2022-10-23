@@ -6,7 +6,7 @@ int main()
 {
     Text RawCommands = {};
 
-    FILE* RawCmdFile = get_file ("../examples/Circle.asm", "r");
+    FILE* RawCmdFile = get_file ("../examples/quadratic.asm", "r");
     FILE* CmdFile    = get_file ("../data/cmds.bin", "wb+");
 
     HandleTextStruct (&RawCommands, RawCmdFile); // read the file with commands
@@ -164,7 +164,7 @@ int FindLabel (Assembler* AsmInfo, char* label_name)
 int HandlePushPop (Assembler* AsmInfo, char* cur_cmd_line, int cmd_type)
 {
     char *cmd_byte = AsmInfo->commands + AsmInfo->cur_len;
-         *cmd_byte = cmd_type;
+         *cmd_byte = cmd_type; // number of cmd Push or Pop
 
     char cmd_line_copy[MAX_CMD_LEN] = "";
     strcpy (cmd_line_copy, cur_cmd_line);
@@ -172,7 +172,7 @@ int HandlePushPop (Assembler* AsmInfo, char* cur_cmd_line, int cmd_type)
 
     // Handle each case of argumen. digit, register, digit+register
 
-    elem_t  tmp_imm = 0; 
+    elem_t tmp_imm = 0; // value after the command   
     char tmp_reg[MAX_CMD_LEN] = "";
 
     if  (sscanf (cmd_line_copy, "%lg + %s",     &tmp_imm,  tmp_reg)   == 2 || 
@@ -211,7 +211,7 @@ int IsJmp (Assembler* AsmInfo, char* line)
     int cmd_len = 0;
 
     #define DEF_CMD(name, id, offset, code)  \
-        cmd_len = strlen (#name);    \
+        cmd_len = strlen (#name);            \
         if (strncmp (#name,  line, cmd_len) == 0) return ParseJmp (AsmInfo, line + cmd_len, name);  
     
     //-----------------------------------------------------
@@ -274,7 +274,8 @@ bool HandleRam (char* cmd_line)
 void AsmInfoCtor (Assembler* AsmInfo, Text* RawCmd)
 {
     AsmInfo->commands = (char*)  calloc (sizeof (elem_t) * 2, RawCmd->lines_amount * 2);
-    AsmInfo->labels =   (Label*) calloc (sizeof(Label), MAX_LABELS);
+    AsmInfo->labels =   (Label*) calloc (sizeof (Label), MAX_LABELS);
+    assert (AsmInfo->commands && AsmInfo->labels);
 
     AsmInfo->cur_len = SERVICE_DATA_LEN;
     AsmInfo->labels_amount = 0;
@@ -292,7 +293,9 @@ void AsmInfoDtor (Assembler* AsmInfo)
 
 int GetRegNum (char* reg)
 {
+    printf ("\nRecieved register %s\n\n", reg);
     printf("recieved chars %c and %c\n", reg[0], reg[2]);
+
     if (reg[0] == 'r' && reg[2] == 'x')
     {
         return reg[1] - 'a';

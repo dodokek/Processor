@@ -83,7 +83,7 @@ draw_filled_circle:
     POP rbx
 
     CALL draw_circle
-    PUSH -1
+    PUSH -0.5
     PUSH rex
     ADD
     POP rex

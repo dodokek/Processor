@@ -35,6 +35,19 @@ void ReadHeader (Processor* CpuInfo, char* code)
 }
 
 
+char* ReadCommandsFile ()
+{
+    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
+
+
+    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE);  // IF_CRINGE (buffer) return BAD_...;
+    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
+    fclose (CmdFile);
+
+    return buffer;
+}
+
+
 void Execute (Processor* CpuInfo)
 {
     Stack MainStack = {};
@@ -124,19 +137,6 @@ void DrawMemory (Processor* CpuInfo)
 }
 
 
-char* ReadCommandsFile ()
-{
-    FILE* CmdFile = get_file ("../data/cmds.bin", "rb");
-
-
-    char* buffer = (char*) calloc (sizeof (elem_t), MAX_BIN_SIZE); 
-    fread (buffer, sizeof (elem_t), MAX_CMDS_AMOUNT, CmdFile);
-    fclose (CmdFile);
-
-    return buffer;
-}
-
-
 void ProcCtor (Processor* CpuInfo)
 {
     CpuInfo->version = 0;
@@ -146,6 +146,7 @@ void ProcCtor (Processor* CpuInfo)
     memset (CpuInfo->Regs, 0, sizeof(elem_t) * REG_AMOUNT);
 
     CpuInfo->Ram = (elem_t*) calloc (RAM_SIZE, sizeof (elem_t));
+    assert (CpuInfo->Ram);
 
     CpuInfo->CallStack = {};
     StackCtor (&CpuInfo->CallStack, 2);
